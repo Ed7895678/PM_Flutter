@@ -1,9 +1,9 @@
+// lib/data/services/api_service.dart
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../core/constants/api_constants.dart';
 
 class ApiService {
-  final String baseUrl = ApiConstants.baseUrl;
+  final String baseUrl = 'http://pmonteiro.ovh:5000';
   String? _token;
 
   void setToken(String token) {

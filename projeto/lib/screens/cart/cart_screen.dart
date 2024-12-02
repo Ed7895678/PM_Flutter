@@ -1,3 +1,4 @@
+// lib/screens/cart/cart_screen.dart
 import 'package:flutter/material.dart';
 
 class CartScreen extends StatelessWidget {
@@ -9,20 +10,8 @@ class CartScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Carrinho'),
       ),
-      body: ListView.builder(
-        itemCount: 0, // Temporário
-        itemBuilder: (context, index) {
-          return const CartItemWidget();
-        },
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            onPressed: () {},
-            child: const Text('Finalizar Compra'),
-          ),
-        ),
+      body: const Center(
+        child: Text('Tela do Carrinho'),
       ),
     );
   }

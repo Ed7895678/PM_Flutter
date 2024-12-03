@@ -3,44 +3,119 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ApiService {
+  static final ApiService _instance = ApiService._internal();
+
+  factory ApiService() => _instance;
+
+  ApiService._internal();
+
   final String baseUrl = 'http://pmonteiro.ovh:5000';
   String? _token;
 
   void setToken(String token) {
     _token = token;
+    print('Token definido: $token');
   }
 
-  Map<String, String> get _headers {
-    return {
-      'Content-Type': 'application/json',
-      if (_token != null) 'Authorization': 'Bearer $_token',
-    };
-  }
+  Map<String, String> get _headers => {
+    'Content-Type': 'application/json',
+    if (_token != null) 'Authorization': 'Bearer $_token',
+  };
 
-  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: _headers,
-      body: json.encode(body),
-    );
+  Future<dynamic> get(String endpoint) async {
+    final url = '$baseUrl$endpoint';
+    print('GET Request para: $url');
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to post data');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: _headers,
+      );
+
+      print('Status code: ${response.statusCode}');
+      print('Resposta: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Falha na requisição GET: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Erro na requisição GET: $e');
+      rethrow;
     }
   }
 
-  Future<Map<String, dynamic>> get(String endpoint) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: _headers,
-    );
+  Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
+    final url = '$baseUrl$endpoint';
+    print('POST Request para: $url');
+    print('Dados: $data');
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to get data');
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: _headers,
+        body: json.encode(data),
+      );
+
+      print('Status code: ${response.statusCode}');
+      print('Resposta: ${response.body}');
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Falha na requisição POST: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Erro na requisição POST: $e');
+      rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final response = await post('/auth/login', {
+      'email': email,
+      'password': password,
+    });
+    _token = response['token'];
+    return response;
+  }
+
+  Future<Map<String, dynamic>> register(String name, String email, String password) async {
+    final response = await post('/auth/register', {
+      'name': name,
+      'email': email,
+      'password': password,
+    });
+    _token = response['token'];
+    return response;
+  }
+
+  Future<List<dynamic>> getProducts() async {
+    return await get('/products');
+  }
+
+  Future<Map<String, dynamic>> getProduct(String id) async {
+    return await get('/products/$id');
+  }
+
+  Future<List<dynamic>> getCategories() async {
+    return await get('/categories');
+  }
+
+  Future<Map<String, dynamic>> getCart() async {
+    return await get('/cart');
+  }
+
+  Future<Map<String, dynamic>> updateCart(List<Map<String, dynamic>> items) async {
+    return await post('/cart', {'items': items});
+  }
+
+  Future<List<dynamic>> getOrders() async {
+    return await get('/orders');
+  }
+
+  Future<Map<String, dynamic>> createOrder(Map<String, dynamic> orderData) async {
+    return await post('/orders', orderData);
   }
 }

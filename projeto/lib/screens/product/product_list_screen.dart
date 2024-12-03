@@ -1,39 +1,75 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 
-class ProductListScreen extends StatelessWidget {
+class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
+
+  @override
+  State<ProductListScreen> createState() => _ProductListScreenState();
+}
+
+class _ProductListScreenState extends State<ProductListScreen> {
+  List<dynamic> _products = [];
+  List<dynamic> _categories = [];
+  bool _isLoading = true;
+  String? _selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    try {
+      final products = await apiService.getProducts();
+      final categories = await apiService.getCategories();
+      setState(() {
+        _products = products;
+        _categories = categories;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('TechShop'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // Implementar busca
-            },
-          ),
-        ],
-      ),
-      body: Column(
+      appBar: AppBar(title: const Text('Produtos')),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
-          // Filtros de categoria
           SizedBox(
             height: 50,
-            child: ListView(
+            child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildCategoryChip('Smartphones'),
-                _buildCategoryChip('Tablets'),
-                _buildCategoryChip('Laptops'),
-                _buildCategoryChip('Acessórios'),
-              ],
+              itemCount: _categories.length,
+              itemBuilder: (context, index) {
+                final category = _categories[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: FilterChip(
+                    label: Text(category['name']),
+                    selected: _selectedCategory == category['_id'],
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedCategory = selected ? category['_id'] : null;
+                      });
+                    },
+                  ),
+                );
+              },
             ),
           ),
-          // Lista de produtos
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -43,9 +79,10 @@ class ProductListScreen extends StatelessWidget {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
-              itemCount: 10, // Temporário
+              itemCount: _products.length,
               itemBuilder: (context, index) {
-                return _buildProductCard();
+                final product = _products[index];
+                return _ProductCard(product: product);
               },
             ),
           ),
@@ -53,51 +90,60 @@ class ProductListScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildCategoryChip(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: Chip(
-        label: Text(label),
-      ),
-    );
-  }
+class _ProductCard extends StatelessWidget {
+  final Map<String, dynamic> product;
 
-  Widget _buildProductCard() {
+  const _ProductCard({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-              ),
-              child: const Center(
-                child: Icon(Icons.phone_android, size: 50),
-              ),
+            child: Image.network(
+              product['image_url'] ?? '',
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const Icon(Icons.image),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Nome do Produto',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  product['name'] ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  '€999.99',
-                  style: TextStyle(color: Colors.blue),
-                ),
+                Text('€${product['price']?.toString() ?? "0.00"}'),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      try {
+                        await apiService.updateCart([
+                          {'product_id': product['_id'], 'quantity': 1}
+                        ]);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Produto adicionado ao carrinho'),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())),
+                          );
+                        }
+                      }
+                    },
                     child: const Text('Adicionar'),
                   ),
                 ),

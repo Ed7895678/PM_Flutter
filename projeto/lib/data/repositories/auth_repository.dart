@@ -1,5 +1,6 @@
+// lib/data/repositories/auth_repository.dart
 import '../services/api_service.dart';
-import '../models/user_model.dart';
+import '../../core/constants/api_constants.dart';
 
 class AuthRepository {
   final ApiService _apiService;
@@ -7,21 +8,20 @@ class AuthRepository {
   AuthRepository(this._apiService);
 
   Future<String> login(String email, String password) async {
-    final response = await _apiService.post('/auth/login', {
-      'email': email,
-      'password': password,
-    });
-
-    return response['token'];
+    try {
+      final response = await _apiService.login(email, password);
+      return response['token'];
+    } catch (e) {
+      throw Exception('Falha no login: $e');
+    }
   }
 
   Future<String> register(String name, String email, String password) async {
-    final response = await _apiService.post('/auth/register', {
-      'name': name,
-      'email': email,
-      'password': password,
-    });
-
-    return response['token'];
+    try {
+      final response = await _apiService.register(name, email, password);
+      return response['token'];
+    } catch (e) {
+      throw Exception('Falha no registro: $e');
+    }
   }
 }

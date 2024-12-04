@@ -256,10 +256,14 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   onPressed: () async {
                     try {
+                      // Criar pedido com todos os campos obrigatórios
                       await apiService.createOrder({
-                        'shipping_address': 'Endereço de exemplo',
+                        'items': _cart?['items'] ?? [],
+                        'shipping_address': 'Rua Exemplo 123, Lisboa',
                         'payment_method': 'MBWAY',
+                        'total': _total,
                       });
+
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

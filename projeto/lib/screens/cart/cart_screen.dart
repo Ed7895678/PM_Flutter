@@ -256,12 +256,29 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   onPressed: () async {
                     try {
-                      // Criar pedido com todos os campos obrigatórios
+                      final orderItems = (items as List<dynamic>).map((item) {
+                        final product = _findProduct(item['product_id']);
+                        return {
+                          'product_id': item['product_id'],
+                          'quantity': item['quantity'],
+                          'product_name': product?['name'] ?? '',
+                          'product_image_url': product?['image_url'] ?? '',
+                          'product_price': product?['price'] ?? 0.0,
+                        };
+                      }).toList();
+
                       await apiService.createOrder({
-                        'items': _cart?['items'] ?? [],
+                        'items': orderItems,
                         'shipping_address': 'Rua Exemplo 123, Lisboa',
                         'payment_method': 'MBWAY',
                         'total': _total,
+                      });
+
+                      await apiService.updateCart([]);
+
+                      setState(() {
+                        _cart = {'items': []};
+                        _total = 0.0;
                       });
 
                       if (mounted) {

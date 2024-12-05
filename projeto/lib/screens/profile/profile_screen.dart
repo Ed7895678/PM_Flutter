@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../widgets/header.dart';
 import '../order/order_list_screen.dart';
+import 'addresses_list_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -29,15 +30,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             radius: 50,
             child: Icon(Icons.person, size: 50),
           ),
-          const SizedBox(height: 16),
-          const Center(
-            child: Text(
-              'Nome do Usuário',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ),
 
-          // Meus Pedidos
+          // Pedidos Realizados
           const SizedBox(height: 32),
           ListTile(
             leading: const Icon(Icons.shopping_bag),
@@ -57,6 +51,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             leading: const Icon(Icons.location_on),
             title: const Text('Endereços'),
             onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddressesListScreen(),
+                ),
+              );
             },
           ),
 

@@ -1,7 +1,7 @@
-// lib/screens/cart/cart_screen.dart
 import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../widgets/header.dart';
+import '../order/payment_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -121,12 +121,9 @@ class _CartScreenState extends State<CartScreen> {
     final items = _cart?['items'] ?? [];
 
     return Scaffold(
-
-      // Header
       appBar: const Header(
         title: "Carrinho",
       ),
-
       body: items.isEmpty
           ? const Center(child: Text('Carrinho vazio'))
           : ListView.builder(
@@ -159,6 +156,7 @@ class _CartScreenState extends State<CartScreen> {
                       errorBuilder: (_, __, ___) => const Icon(Icons.image),
                     ),
                   ),
+
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -211,6 +209,7 @@ class _CartScreenState extends State<CartScreen> {
           );
         },
       ),
+
       bottomNavigationBar: items.isEmpty
           ? null
           : Container(
@@ -224,6 +223,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ],
         ),
+
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -248,6 +248,8 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ],
               ),
+
+              // Botão de Finalizar Compra
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -255,50 +257,16 @@ class _CartScreenState extends State<CartScreen> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  onPressed: () async {
-                    try {
-                      final orderItems = (items as List<dynamic>).map((item) {
-                        final product = _findProduct(item['product_id']);
-                        return {
-                          'product_id': item['product_id'],
-                          'quantity': item['quantity'],
-                          'product_name': product?['name'] ?? '',
-                          'product_image_url': product?['image_url'] ?? '',
-                          'product_price': product?['price'] ?? 0.0,
-                        };
-                      }).toList();
-
-                      await apiService.createOrder({
-                        'items': orderItems,
-                        'shipping_address': 'Rua Exemplo 123, Lisboa',
-                        'payment_method': 'MBWAY',
-                        'total': _total,
-                      });
-
-                      await apiService.updateCart([]);
-
-                      setState(() {
-                        _cart = {'items': []};
-                        _total = 0.0;
-                      });
-
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Pedido realizado com sucesso'),
-                          ),
-                        );
-                        Navigator.pushReplacementNamed(context, '/home');
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Erro ao criar pedido: $e')),
-                        );
-                      }
-                    }
+                  onPressed: () {
+                    // Navega para a página pagamento
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PaymentScreen(),
+                      ),
+                    );
                   },
-                  child: const Text('Finalizar Compra'),
+                  child: const Text('Confirmar Carrinho'),
                 ),
               ),
             ],

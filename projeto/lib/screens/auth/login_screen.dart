@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.only(top: 24), // Padding para dar espaço entre botões
               child: TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/register'),
-                child: const Text('Criar conta'),
+                child: const Text('Ainda não tens conta? Clica aqui'),
               ),
             ),
           ],

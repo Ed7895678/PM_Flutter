@@ -3,7 +3,7 @@ import 'address_screen.dart';
 import 'package:projeto/widgets/header.dart';
 
 class PaymentScreen extends StatefulWidget {
-  final double total; // Adicionar o campo total como variável de instância
+  final double total;
 
   const PaymentScreen({super.key, required this.total});
 
@@ -12,11 +12,10 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String _selectedPaymentMethod = ''; // Método de pagamento selecionado
+  String _selectedPaymentMethod = '';
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _cardNumberController = TextEditingController();
 
-  // Lista de métodos de pagamento
   final List<String> _paymentMethods = [
     "PayPal",
     "MBWay",
@@ -25,7 +24,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   void _selectPaymentMethod(String method) {
     setState(() {
-      _selectedPaymentMethod = method;
+      _selectedPaymentMethod = method == "Transferência Bancária" ? "BANK_TRANSFER" : method;
       _phoneController.clear();
       _cardNumberController.clear();
     });
@@ -42,30 +41,30 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Botões de método de pagamento
             ..._paymentMethods.map((method) {
+              bool isSelected = method == "Transferência Bancária" ?
+              _selectedPaymentMethod == "BANK_TRANSFER" :
+              _selectedPaymentMethod == method;
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: ElevatedButton(
                   onPressed: () => _selectPaymentMethod(method),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: _selectedPaymentMethod == method
-                        ? Colors.red
-                        : Colors.grey[300],
-                    foregroundColor: _selectedPaymentMethod == method
-                        ? Colors.white
-                        : Colors.black,
+                    backgroundColor: isSelected ? Colors.red : Colors.grey[300],
+                    foregroundColor: isSelected ? Colors.white : Colors.black,
                   ),
                   child: Text(method),
                 ),
               );
             }),
 
-            // Mostrar método selecionado acima dos inputs
             const SizedBox(height: 16),
             if (_selectedPaymentMethod.isNotEmpty)
               Text(
+                _selectedPaymentMethod == "BANK_TRANSFER" ?
+                "Transferência Bancária" :
                 _selectedPaymentMethod,
                 style: const TextStyle(
                   fontSize: 20,
@@ -74,7 +73,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 textAlign: TextAlign.center,
               ),
 
-            // Campos dinâmicos com base no método selecionado
             const SizedBox(height: 16),
             if (_selectedPaymentMethod == "PayPal" ||
                 _selectedPaymentMethod == "MBWay") ...[
@@ -86,7 +84,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-            ] else if (_selectedPaymentMethod == "Transferência Bancária") ...[
+            ] else if (_selectedPaymentMethod == "BANK_TRANSFER") ...[
               TextField(
                 controller: _cardNumberController,
                 keyboardType: TextInputType.number,
@@ -123,7 +121,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         _selectedPaymentMethod == "MBWay"
                         ? "Telefone: ${_phoneController.text}"
                         : _cardNumberController.text,
-                    total: widget.total, // Passar o total
+                    total: widget.total,
                   ),
                 ),
               );

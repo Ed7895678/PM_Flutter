@@ -55,11 +55,9 @@ class _OrderListScreenState extends State<OrderListScreen> {
     }
 
     return Scaffold(
-      // Header
       appBar: const Header(
         title: "Pedidos",
       ),
-
       body: _orders.isEmpty
           ? const Center(child: Text('Nenhum pedido encontrado'))
           : ListView.builder(
@@ -101,8 +99,7 @@ class _OrderListScreenState extends State<OrderListScreen> {
               onTap: () {
                 showModalBottomSheet(
                   context: context,
-                  builder: (context) =>
-                      OrderDetailsModal(order: order),
+                  builder: (context) => OrderDetailsModal(order: order),
                   isScrollControlled: true,
                 );
               },
@@ -142,8 +139,6 @@ class OrderDetailsModal extends StatelessWidget {
               itemCount: order['items']?.length ?? 0,
               itemBuilder: (context, index) {
                 final item = order['items'][index];
-
-                // Informações do produto diretamente do JSON
                 final productName = item['product_name'] ?? 'Produto Indisponível';
                 final productPrice = item['product_price'] ?? 0.0;
                 final productImage = item['product_image_url'] ?? '';
@@ -173,8 +168,7 @@ class OrderDetailsModal extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Endereço de entrega'),
-              subtitle:
-              Text(order['shipping_address'] ?? 'Endereço não disponível'),
+              subtitle: Text(order['shipping_address'] ?? 'Endereço não disponível'),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,

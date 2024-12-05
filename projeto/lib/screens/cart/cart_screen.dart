@@ -39,9 +39,11 @@ class _CartScreenState extends State<CartScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar carrinho: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar carrinho: $e')),
+        );
+      }
     }
   }
 
@@ -53,7 +55,7 @@ class _CartScreenState extends State<CartScreen> {
         _calculateTotal();
       });
     } catch (e) {
-      print('Erro ao carregar produtos: $e');
+      debugPrint('Erro ao carregar produtos: $e');
     }
   }
 
@@ -81,6 +83,30 @@ class _CartScreenState extends State<CartScreen> {
       );
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<void> _updateQuantity(String productId, int newQuantity) async {
+    try {
+      List<Map<String, dynamic>> currentItems = List<Map<String, dynamic>>.from(_cart?['items'] ?? []);
+
+      if (newQuantity <= 0) {
+        currentItems.removeWhere((item) => item['product_id'] == productId);
+      } else {
+        var itemIndex = currentItems.indexWhere((item) => item['product_id'] == productId);
+        if (itemIndex != -1) {
+          currentItems[itemIndex]['quantity'] = newQuantity;
+        }
+      }
+
+      await apiService.updateCart(currentItems);
+      await _loadCart();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao atualizar carrinho: $e')),
+        );
+      }
     }
   }
 
@@ -125,8 +151,7 @@ class _CartScreenState extends State<CartScreen> {
                     child: Image.network(
                       product['image_url'] ?? '',
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.image),
+                      errorBuilder: (_, __, ___) => const Icon(Icons.image),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -149,8 +174,31 @@ class _CartScreenState extends State<CartScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: item['quantity'] <= 1 ? null : () => _updateQuantity(
+                                item['product_id'],
+                                item['quantity'] - 1,
+                              ),
+                            ),
+                            Text(item['quantity'].toString()),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => _updateQuantity(
+                                item['product_id'],
+                                item['quantity'] + 1,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _updateQuantity(item['product_id'], 0),
                   ),
                 ],
               ),
@@ -195,7 +243,6 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -207,8 +254,7 @@ class _CartScreenState extends State<CartScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            PaymentScreen(total: _total),
+                        builder: (context) => PaymentScreen(total: _total),
                       ),
                     );
                   },

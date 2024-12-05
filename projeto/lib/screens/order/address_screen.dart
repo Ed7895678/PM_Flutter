@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'confirmation_screen.dart';
+import 'package:projeto/widgets/header.dart';
 
 class AddressScreen extends StatefulWidget {
   const AddressScreen({super.key});
@@ -16,8 +17,8 @@ class _AddressScreenState extends State<AddressScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      appBar: AppBar(
-        title: const Text("Informações de Endereço"),
+      appBar: const Header(
+        title: "Informações de Endereço",
       ),
 
       body: Padding(
@@ -25,7 +26,6 @@ class _AddressScreenState extends State<AddressScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
             // Campo de Morada
             TextField(
               controller: _addressController,
@@ -44,25 +44,36 @@ class _AddressScreenState extends State<AddressScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 32),
-
-            // Botão para confirmar
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ConfirmationScreen(),
-                  ),
-                );
-              },
-
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text("Continuar"),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
             ),
           ],
+        ),
+        child: SafeArea(
+          child: ElevatedButton(
+            onPressed: () {
+              // Navegar para a tela de confirmação
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ConfirmationScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Text("Continuar"),
+          ),
         ),
       ),
     );

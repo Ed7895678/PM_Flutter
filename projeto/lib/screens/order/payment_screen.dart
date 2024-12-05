@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'address_screen.dart';
 import 'package:projeto/widgets/header.dart';
-import 'address_screen.dart'; // Importa a página de endereço
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final double total; // Adicionar o campo total como variável de instância
+
+  const PaymentScreen({super.key, required this.total});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -32,11 +34,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: const Header(
-        title: "Informações de pagamento",
+        title: "Informações de Pagamento",
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -114,24 +114,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
           child: ElevatedButton(
             onPressed: _selectedPaymentMethod.isNotEmpty
                 ? () {
-              // Lógica de compra
-              String details = "";
-              if (_selectedPaymentMethod == "PayPal" ||
-                  _selectedPaymentMethod == "MBWay") {
-                details = "Telefone: ${_phoneController.text}";
-              } else if (_selectedPaymentMethod == "Transferência Bancária") {
-                details = "Número do Cartão: ${_cardNumberController.text}";
-              }
-
-              // Navegar para a AddressScreen
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AddressScreen(),
+                  builder: (context) => AddressScreen(
+                    paymentMethod: _selectedPaymentMethod,
+                    paymentDetail: _selectedPaymentMethod == "PayPal" ||
+                        _selectedPaymentMethod == "MBWay"
+                        ? "Telefone: ${_phoneController.text}"
+                        : _cardNumberController.text,
+                    total: widget.total, // Passar o total
+                  ),
                 ),
               );
             }
-                : null, // Botão desativado se nenhum método for selecionado
+                : null,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),

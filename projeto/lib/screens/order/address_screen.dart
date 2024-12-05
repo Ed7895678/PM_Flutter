@@ -3,7 +3,16 @@ import 'confirmation_screen.dart';
 import 'package:projeto/widgets/header.dart';
 
 class AddressScreen extends StatefulWidget {
-  const AddressScreen({super.key});
+  final String paymentMethod;
+  final String paymentDetail;
+  final double total;
+
+  const AddressScreen({
+    super.key,
+    required this.paymentMethod,
+    required this.paymentDetail,
+    required this.total,
+  });
 
   @override
   State<AddressScreen> createState() => _AddressScreenState();
@@ -16,17 +25,15 @@ class _AddressScreenState extends State<AddressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: const Header(
         title: "Informações de Endereço",
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Campo de Morada
+            // Campo para "Morada"
             TextField(
               controller: _addressController,
               decoration: const InputDecoration(
@@ -35,8 +42,7 @@ class _AddressScreenState extends State<AddressScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Campo de Localização
+            // Campo para "Localização"
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
@@ -61,11 +67,17 @@ class _AddressScreenState extends State<AddressScreen> {
         child: SafeArea(
           child: ElevatedButton(
             onPressed: () {
-              // Navegar para a tela de confirmação
+              // Navegar para a tela de confirmação com os detalhes
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ConfirmationScreen(),
+                  builder: (context) => ConfirmationScreen(
+                    paymentMethod: widget.paymentMethod,
+                    paymentDetail: widget.paymentDetail,
+                    address: _addressController.text,
+                    location: _locationController.text,
+                    total: widget.total,
+                  ),
                 ),
               );
             },

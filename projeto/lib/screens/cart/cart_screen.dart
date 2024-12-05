@@ -39,11 +39,9 @@ class _CartScreenState extends State<CartScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar carrinho: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar carrinho: $e')),
+      );
     }
   }
 
@@ -86,30 +84,6 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
-  Future<void> _updateQuantity(String productId, int newQuantity) async {
-    try {
-      List<Map<String, dynamic>> currentItems = List<Map<String, dynamic>>.from(_cart?['items'] ?? []);
-
-      if (newQuantity <= 0) {
-        currentItems.removeWhere((item) => item['product_id'] == productId);
-      } else {
-        var itemIndex = currentItems.indexWhere((item) => item['product_id'] == productId);
-        if (itemIndex != -1) {
-          currentItems[itemIndex]['quantity'] = newQuantity;
-        }
-      }
-
-      await apiService.updateCart(currentItems);
-      await _loadCart();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao atualizar carrinho: $e')),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -121,9 +95,7 @@ class _CartScreenState extends State<CartScreen> {
     final items = _cart?['items'] ?? [];
 
     return Scaffold(
-      appBar: const Header(
-        title: "Carrinho",
-      ),
+      appBar: const Header(title: "Carrinho"),
       body: items.isEmpty
           ? const Center(child: Text('Carrinho vazio'))
           : ListView.builder(
@@ -153,10 +125,10 @@ class _CartScreenState extends State<CartScreen> {
                     child: Image.network(
                       product['image_url'] ?? '',
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.image),
+                      errorBuilder: (_, __, ___) =>
+                      const Icon(Icons.image),
                     ),
                   ),
-
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -177,31 +149,8 @@ class _CartScreenState extends State<CartScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: () => _updateQuantity(
-                                item['product_id'],
-                                item['quantity'] - 1,
-                              ),
-                            ),
-                            Text(item['quantity'].toString()),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () => _updateQuantity(
-                                item['product_id'],
-                                item['quantity'] + 1,
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _updateQuantity(item['product_id'], 0),
                   ),
                 ],
               ),
@@ -209,7 +158,6 @@ class _CartScreenState extends State<CartScreen> {
           );
         },
       ),
-
       bottomNavigationBar: items.isEmpty
           ? null
           : Container(
@@ -223,7 +171,6 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ],
         ),
-
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -249,7 +196,6 @@ class _CartScreenState extends State<CartScreen> {
                 ],
               ),
 
-              // Botão de Finalizar Compra
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -258,11 +204,11 @@ class _CartScreenState extends State<CartScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   onPressed: () {
-                    // Navega para a página pagamento
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const PaymentScreen(),
+                        builder: (context) =>
+                            PaymentScreen(total: _total),
                       ),
                     );
                   },

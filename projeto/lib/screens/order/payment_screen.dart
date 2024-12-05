@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projeto/widgets/header.dart';
+import 'address_screen.dart'; // Importa a página de endereço
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});
@@ -9,7 +10,7 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String _selectedPaymentMethod = ''; // Metodo de pagamento selecionado
+  String _selectedPaymentMethod = ''; // Método de pagamento selecionado
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _cardNumberController = TextEditingController();
 
@@ -33,7 +34,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Scaffold(
 
       appBar: const Header(
-        title: "Método de pagamento",
+        title: "Informações de pagamento",
       ),
 
       body: Padding(
@@ -41,8 +42,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
-            // Botões de metodo de pagamento
+            // Botões de método de pagamento
             ..._paymentMethods.map((method) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -62,7 +62,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               );
             }),
 
-            // Mostrar metodo selecionado acima dos input's
+            // Mostrar método selecionado acima dos inputs
             const SizedBox(height: 16),
             if (_selectedPaymentMethod.isNotEmpty)
               Text(
@@ -74,7 +74,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 textAlign: TextAlign.center,
               ),
 
-            // Campos dinâmicos com base no metodo selecionado
+            // Campos dinâmicos com base no método selecionado
             const SizedBox(height: 16),
             if (_selectedPaymentMethod == "PayPal" ||
                 _selectedPaymentMethod == "MBWay") ...[
@@ -114,7 +114,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
           child: ElevatedButton(
             onPressed: _selectedPaymentMethod.isNotEmpty
                 ? () {
-
               // Lógica de compra
               String details = "";
               if (_selectedPaymentMethod == "PayPal" ||
@@ -123,8 +122,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
               } else if (_selectedPaymentMethod == "Transferência Bancária") {
                 details = "Número do Cartão: ${_cardNumberController.text}";
               }
+
+              // Navegar para a AddressScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AddressScreen(),
+                ),
+              );
             }
-                : null, // Botão desativado se nenhum metodo for selecionado
+                : null, // Botão desativado se nenhum método for selecionado
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),

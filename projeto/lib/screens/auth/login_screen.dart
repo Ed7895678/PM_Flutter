@@ -1,6 +1,7 @@
 // lib/screens/auth/login_screen.dart
 import 'package:flutter/material.dart';
 import '../../main.dart';
+import '../../widgets/header.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -42,17 +43,19 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+
+      // Header
+      appBar: const Header(
+        title: "Login",
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+            // Campo de input: User
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -61,6 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               keyboardType: TextInputType.emailAddress,
             ),
+
+            // Campo de input: Password
             const SizedBox(height: 16),
             TextField(
               controller: _passwordController,
@@ -70,6 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               obscureText: true,
             ),
+
+            // Botão Entrar
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -87,9 +94,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     : const Text('Entrar'),
               ),
             ),
-            TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/register'),
-              child: const Text('Criar conta'),
+
+            // Botão "Criar Conta"
+            Container(
+              padding: const EdgeInsets.only(top: 24), // Padding para dar espaço entre botões
+              child: TextButton(
+                onPressed: () => Navigator.pushNamed(context, '/register'),
+                child: const Text('Criar conta'),
+              ),
             ),
           ],
         ),

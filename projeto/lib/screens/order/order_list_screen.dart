@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../main.dart';
+import '../../widgets/header.dart';
 
 class OrderListScreen extends StatefulWidget {
   const OrderListScreen({super.key});
@@ -54,12 +55,11 @@ class _OrderListScreenState extends State<OrderListScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meus Pedidos'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+      // Header
+      appBar: const Header(
+        title: "Pedidos",
       ),
+
       body: _orders.isEmpty
           ? const Center(child: Text('Nenhum pedido encontrado'))
           : ListView.builder(

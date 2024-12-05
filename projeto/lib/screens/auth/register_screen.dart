@@ -1,6 +1,7 @@
 // lib/screens/auth/register_screen.dart
 import 'package:flutter/material.dart';
 import '../../main.dart';
+import '../../widgets/header.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -44,12 +45,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registro'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+
+      // Header
+      appBar: const Header(
+        title: "Registo",
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -62,6 +63,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+
+            // Campo de Input de Email
             const SizedBox(height: 16),
             TextField(
               controller: _emailController,
@@ -71,6 +74,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               keyboardType: TextInputType.emailAddress,
             ),
+
+            // Campo de Input de Password
             const SizedBox(height: 16),
             TextField(
               controller: _passwordController,
@@ -80,6 +85,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               obscureText: true,
             ),
+
+            // Botão de Registar
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,

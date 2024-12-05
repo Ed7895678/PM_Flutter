@@ -1,6 +1,7 @@
 // lib/screens/cart/cart_screen.dart
 import 'package:flutter/material.dart';
 import '../../main.dart';
+import '../../widgets/header.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -120,12 +121,12 @@ class _CartScreenState extends State<CartScreen> {
     final items = _cart?['items'] ?? [];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Carrinho'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+
+      // Header
+      appBar: const Header(
+        title: "Carrinho",
       ),
+
       body: items.isEmpty
           ? const Center(child: Text('Carrinho vazio'))
           : ListView.builder(

@@ -1,6 +1,7 @@
 // lib/screens/product/product_list_screen.dart
 import 'package:flutter/material.dart';
 import '../../main.dart';
+import '../../widgets/header.dart';
 import 'product_detail_screen.dart';
 
 class ProductListScreen extends StatefulWidget {
@@ -86,12 +87,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Produtos'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+      // Header
+      appBar: const Header(
+        title: "Produtos",
       ),
+
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -136,11 +136,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       ),
                     ),
                   ),
+
                   Padding(
                     padding: const EdgeInsets.all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+
                         Text(
                           product['name'] ?? '',
                           style: const TextStyle(
@@ -151,6 +153,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
+
                         Text(
                           '€${product['price']?.toString() ?? "0.00"}',
                           style: const TextStyle(
@@ -159,6 +162,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
+
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(

@@ -22,6 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Navigatio menu
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -36,10 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.home),
             label: 'Produtos',
           ),
+
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Carrinho',
           ),
+
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Perfil',

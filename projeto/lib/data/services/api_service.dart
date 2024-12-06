@@ -91,8 +91,12 @@ class ApiService {
     return response;
   }
 
-  Future<List<dynamic>> getProducts() async {
-    return await get('/products');
+  Future<List<dynamic>> getProducts({String? categoryId}) async {
+    String endpoint = '/products';
+    if (categoryId != null && categoryId != 'Todos') {
+      endpoint = '/products?category=$categoryId';
+    }
+    return await get(endpoint);
   }
 
   Future<Map<String, dynamic>> getProduct(String id) async {

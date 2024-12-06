@@ -27,7 +27,7 @@ class _ProductListScreenState extends State {
     _loadProducts();
 
     _searchController.addListener(() {
-      _filterProducts(_selectedCategory, _searchController.text);
+      _filterProductsBySearch(_searchController.text);
     });
   }
 
@@ -84,22 +84,34 @@ class _ProductListScreenState extends State {
     }
   }
 
-  void _filterProducts(String categoryId, [String? searchQuery]) {
+  // Nova função só para filtrar por pesquisa
+  void _filterProductsBySearch(String searchQuery) {
     setState(() {
-      _selectedCategory = categoryId;
-      _searchQuery = searchQuery ?? _searchQuery;
-
-      _loadProducts(categoryId).then((_) {
-        if (_searchQuery.isNotEmpty) {
-          _filteredProducts = _products.where((product) {
-            return product['name']
-                .toString()
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase());
-          }).toList();
-        }
-      });
+      _searchQuery = searchQuery;
+      if (searchQuery.isEmpty) {
+        _filteredProducts = _products;
+      } else {
+        _filteredProducts = _products.where((product) {
+          return product['name']
+              .toString()
+              .toLowerCase()
+              .contains(searchQuery.toLowerCase());
+        }).toList();
+      }
     });
+  }
+
+  // Função modificada para tratar mudança de categoria
+  void _filterByCategory(String categoryId) async {
+    setState(() => _selectedCategory = categoryId);
+
+    // Só recarrega os produtos se mudar de categoria
+    await _loadProducts(categoryId);
+
+    // Reaplica o filtro de pesquisa se existir
+    if (_searchQuery.isNotEmpty) {
+      _filterProductsBySearch(_searchQuery);
+    }
   }
 
   void _showFilterModal() {
@@ -124,7 +136,7 @@ class _ProductListScreenState extends State {
                 title: Text(category['name']),
                 onTap: () {
                   Navigator.pop(context);
-                  _filterProducts(category['_id'], _searchQuery);
+                  _filterByCategory(category['_id']);
                 },
               );
             }).toList(),
@@ -184,20 +196,31 @@ class _ProductListScreenState extends State {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // Barra de pesquisa
                 Expanded(
                   flex: 2,
                   child: TextField(
                     controller: _searchController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Pesquisar produtos...',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        borderSide: const BorderSide(color: Colors.blue),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Botão de Categorias
                 Expanded(
                   flex: 1,
                   child: ElevatedButton.icon(
@@ -205,13 +228,15 @@ class _ProductListScreenState extends State {
                     label: const Text('Categorias'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
           Expanded(
             child: _filteredProducts.isEmpty
                 ? const Center(
@@ -291,6 +316,11 @@ class _ProductListScreenState extends State {
                                 width: double.infinity,
                                 child: ElevatedButton(
                                   onPressed: () => _addToCart(product),
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                  ),
                                   child: const Text('Adicionar'),
                                 ),
                               ),

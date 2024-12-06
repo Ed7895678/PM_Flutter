@@ -14,6 +14,7 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Map<String, dynamic>? _product;
   bool _isLoading = true;
+  int _quantity = 1;
 
   @override
   void initState() {
@@ -43,6 +44,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  void _incrementQuantity() {
+    if (_product != null && _quantity < _product!['stock']) {
+      setState(() {
+        _quantity++;
+      });
+    }
+  }
+
+  void _decrementQuantity() {
+    if (_quantity > 1) {
+      setState(() {
+        _quantity--;
+      });
+    }
+  }
+
   Future<void> _addToCart() async {
     try {
       final currentCart = await apiService.getCart();
@@ -53,11 +70,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               (item) => item['product_id'] == _product!['_id']);
 
       if (existingIndex != -1) {
-        currentItems[existingIndex]['quantity']++;
+        currentItems[existingIndex]['quantity'] += _quantity;
       } else {
         currentItems.add({
           'product_id': _product!['_id'],
-          'quantity': 1,
+          'quantity': _quantity,
         });
       }
 
@@ -65,7 +82,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Produto adicionado ao carrinho')),
+          SnackBar(content: Text('${_quantity} unidade(s) adicionada(s) ao carrinho')),
         );
       }
     } catch (e) {
@@ -92,12 +109,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
 
     return Scaffold(
-
-      // Header
       appBar: Header(
         title: _product!['name'],
       ),
-
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,9 +168,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Stock: ',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
@@ -165,6 +179,35 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       Text(
                         '${_product!['stock'] ?? 'Indisponível'}',
                         style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  // Seletor de quantidade com botão de decremento desabilitado quando quantidade = 1
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: _quantity <= 1 ? null : _decrementQuantity,
+                        style: IconButton.styleFrom(
+                          // Deixa o botão mais visualmente desabilitado quando quantidade = 1
+                          foregroundColor: _quantity <= 1 ? Colors.grey[400] : null,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          '$_quantity',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: _incrementQuantity,
                       ),
                     ],
                   ),
@@ -185,7 +228,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Adicionar ao Carrinho'),
+                  child: Text('Adicionar ao Carrinho'),
                 ),
               ),
             ],

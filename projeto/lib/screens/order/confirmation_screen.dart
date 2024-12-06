@@ -28,32 +28,64 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
   late Future<List<dynamic>> _cartItems;
   List<Map<String, dynamic>> _products = [];
   bool _isLoading = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    debugPrint('ConfirmationScreen - initState');
+    _initializeScreen();
   }
 
-  Future<void> _loadInitialData() async {
-    await _loadProducts();
-    _cartItems = _loadCartItems();
+  Future<void> _initializeScreen() async {
+    try {
+      debugPrint('Iniciando carregamento dos dados');
+      await _loadProducts();
+      _cartItems = _loadCartItems();
+      debugPrint('Dados carregados com sucesso');
+
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao inicializar tela: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar dados: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _loadProducts() async {
     try {
+      debugPrint('Carregando produtos');
       final products = await _apiService.getProducts();
-      setState(() {
-        _products = List<Map<String, dynamic>>.from(products);
-      });
+      if (mounted) {
+        setState(() {
+          _products = List<Map<String, dynamic>>.from(products);
+        });
+      }
+      debugPrint('Produtos carregados: ${_products.length}');
     } catch (e) {
       debugPrint('Erro ao carregar produtos: $e');
+      rethrow;
     }
   }
 
   Future<List<dynamic>> _loadCartItems() async {
-    final cart = await _apiService.getCart();
-    return List<Map<String, dynamic>>.from(cart['items'] ?? []);
+    try {
+      debugPrint('Carregando itens do carrinho');
+      final cart = await _apiService.getCart();
+      final items = List<Map<String, dynamic>>.from(cart['items'] ?? []);
+      debugPrint('Itens do carrinho carregados: ${items.length}');
+      return items;
+    } catch (e) {
+      debugPrint('Erro ao carregar itens do carrinho: $e');
+      rethrow;
+    }
   }
 
   Map<String, dynamic>? _findProduct(String productId) {
@@ -63,154 +95,27 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         orElse: () => {},
       );
     } catch (e) {
+      debugPrint('Erro ao encontrar produto: $e');
       return null;
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const Header(title: "Confirmação"),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                "Carrinho",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              FutureBuilder<List<dynamic>>(
-                future: _cartItems,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Erro ao carregar os artigos: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    );
-                  } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-                    return const Center(child: Text("Carrinho vazio."));
-                  } else {
-                    final items = snapshot.data!;
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        final product = _findProduct(item['product_id']);
-                        final quantity = item['quantity'] ?? 1;
-                        final price = product?['price'] ?? 0.0;
-                        final totalPrice = quantity * price;
-
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 80,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Image.network(
-                                    product?['image_url'] ?? '',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => const Icon(Icons.image),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        product?['name'] ?? 'Artigo Desconhecido',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Quantidade: $quantity',
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                      Text(
-                                        'Preço: €${price.toStringAsFixed(2)}',
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                      Text(
-                                        'Total: €${totalPrice.toStringAsFixed(2)}',
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-              const SizedBox(height: 32),
-              Text(
-                "Total: €${widget.total.toStringAsFixed(2)}",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32),
-              buildPaymentDetails(),
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: buildConfirmButton(context),
-    );
-  }
-
-  Widget buildPaymentDetails() {
+  Widget _buildPaymentDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildInfoRow("Método de Pagamento", widget.paymentMethod),
+        _buildInfoRow("Método de Pagamento", widget.paymentMethod),
         const SizedBox(height: 8),
-        buildInfoRow("Detalhes do Pagamento", widget.paymentDetail),
+        _buildInfoRow("Detalhes do Pagamento", widget.paymentDetail),
         const SizedBox(height: 8),
-        buildInfoRow("Morada", widget.address),
+        _buildInfoRow("Morada", widget.address),
         const SizedBox(height: 8),
-        buildInfoRow("Localização", widget.location),
+        _buildInfoRow("Localização", widget.location),
       ],
     );
   }
 
-  Widget buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(String label, String value) {
     return RichText(
       text: TextSpan(
         children: [
@@ -234,7 +139,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     );
   }
 
-  Widget buildConfirmButton(BuildContext context) {
+  Widget _buildConfirmButton() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -243,69 +148,218 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
       ),
       child: SafeArea(
         child: ElevatedButton(
-          onPressed: () async {
-            setState(() => _isLoading = true);
-            try {
-              final cart = await _apiService.getCart();
-              final items = cart['items'] ?? [];
-
-              final orderItems = (items as List<dynamic>).map((item) {
-                final product = _findProduct(item['product_id']);
-                return {
-                  'product_id': item['product_id'],
-                  'quantity': item['quantity'],
-                  'product_name': product?['name'] ?? '',
-                  'product_image_url': product?['image_url'] ?? '',
-                  'product_price': product?['price'] ?? 0.0,
-                };
-              }).toList();
-
-              final orderData = {
-                "shipping_address": "${widget.address}, ${widget.location}",
-                "payment_method": widget.paymentMethod.toUpperCase(),
-                "items": orderItems,
-                "total": widget.total,
-                "status": "pending",
-              };
-
-              await _apiService.createOrder(orderData);
-              await _apiService.updateCart([]);
-
-              setState(() => _isLoading = false);
-
-              if (context.mounted) {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text('Sucesso'),
-                    content: const Text('Obrigado/a pela sua encomenda'),
-                    actions: [
-                      TextButton(
-                        child: const Text('OK'),
-                        onPressed: () {
-                          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              }
-            } catch (e) {
-              setState(() => _isLoading = false);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Erro ao criar encomenda: $e')),
-                );
-              }
-            }
-          },
+          onPressed: _isLoading ? null : _confirmOrder,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text("Confirmar Ordem"),
+          child: _isLoading
+              ? const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+              : const Text("Confirmar Pedido"),
         ),
       ),
+    );
+  }
+
+  Future<void> _confirmOrder() async {
+    setState(() => _isLoading = true);
+    try {
+      final cart = await _apiService.getCart();
+      final items = cart['items'] ?? [];
+
+      final orderItems = (items as List<dynamic>).map((item) {
+        final product = _findProduct(item['product_id']);
+        return {
+          'product_id': item['product_id'],
+          'quantity': item['quantity'],
+          'product_name': product?['name'] ?? '',
+          'product_image_url': product?['image_url'] ?? '',
+          'product_price': product?['price'] ?? 0.0,
+        };
+      }).toList();
+
+      final orderData = {
+        "shipping_address": "${widget.address}, ${widget.location}",
+        "payment_method": widget.paymentMethod.toUpperCase(),
+        "items": orderItems,
+        "total": widget.total,
+        "status": "pending",
+      };
+
+      await _apiService.createOrder(orderData);
+      await _apiService.updateCart([]);
+
+      setState(() => _isLoading = false);
+
+      if (mounted) {
+        _showSuccessDialog();
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao criar pedido: $e')),
+        );
+      }
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Sucesso'),
+        content: const Text('Obrigado pela sua compra!'),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Scaffold(
+        appBar: const Header(title: "Confirmação"),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Scaffold(
+      appBar: const Header(title: "Confirmação"),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                "Itens do Pedido",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FutureBuilder<List<dynamic>>(
+                future: _cartItems,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Erro ao carregar os itens: ${snapshot.error}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text("Carrinho vazio"));
+                  }
+
+                  final items = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final item = items[index];
+                      final product = _findProduct(item['product_id']);
+                      final quantity = item['quantity'] ?? 1;
+                      final price = product?['price'] ?? 0.0;
+                      final totalPrice = quantity * price;
+
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Image.network(
+                                  product?['image_url'] ?? '',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const Icon(Icons.image),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      product?['name'] ?? 'Produto Desconhecido',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Quantidade: $quantity',
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    Text(
+                                      'Preço: €${price.toStringAsFixed(2)}',
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    Text(
+                                      'Total: €${totalPrice.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 32),
+              Text(
+                "Total: €${widget.total.toStringAsFixed(2)}",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              _buildPaymentDetails(),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: _buildConfirmButton(),
     );
   }
 }

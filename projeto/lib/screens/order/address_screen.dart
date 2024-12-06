@@ -21,6 +21,61 @@ class AddressScreen extends StatefulWidget {
 class _AddressScreenState extends State<AddressScreen> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  bool _isNavigating = false;
+
+  void _navigateToConfirmation() async {
+    // Evita múltiplos cliques durante a navegação
+    if (_isNavigating) return;
+
+    try {
+      setState(() {
+        _isNavigating = true;
+      });
+
+      // Validar campos
+      if (_addressController.text.trim().isEmpty || _locationController.text.trim().isEmpty) {
+        throw 'Por favor, preencha todos os campos do endereço';
+      }
+
+      debugPrint('Iniciando navegação para ConfirmationScreen');
+      debugPrint('Método de Pagamento: ${widget.paymentMethod}');
+      debugPrint('Detalhes do Pagamento: ${widget.paymentDetail}');
+      debugPrint('Endereço: ${_addressController.text}');
+      debugPrint('Localização: ${_locationController.text}');
+      debugPrint('Total: ${widget.total}');
+
+      if (!mounted) return;
+
+      // Navegar para a próxima tela
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConfirmationScreen(
+            paymentMethod: widget.paymentMethod,
+            paymentDetail: widget.paymentDetail,
+            address: _addressController.text,
+            location: _locationController.text,
+            total: widget.total,
+          ),
+        ),
+      );
+
+      debugPrint('Navegação para ConfirmationScreen concluída com sucesso');
+    } catch (e) {
+      debugPrint('Erro durante a navegação: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isNavigating = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +88,6 @@ class _AddressScreenState extends State<AddressScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Campo para "Morada"
             TextField(
               controller: _addressController,
               decoration: const InputDecoration(
@@ -42,7 +96,6 @@ class _AddressScreenState extends State<AddressScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Campo para "Localização"
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
@@ -66,28 +119,36 @@ class _AddressScreenState extends State<AddressScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: () {
-              // Navegar para a tela de confirmação com os detalhes
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ConfirmationScreen(
-                    paymentMethod: widget.paymentMethod,
-                    paymentDetail: widget.paymentDetail,
-                    address: _addressController.text,
-                    location: _locationController.text,
-                    total: widget.total,
-                  ),
-                ),
-              );
-            },
+            onPressed: _isNavigating ? null : _navigateToConfirmation,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child: const Text("Continuar"),
+            child: _isNavigating
+                ? const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Text("Processando..."),
+              ],
+            )
+                : const Text("Continuar"),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    _locationController.dispose();
+    super.dispose();
   }
 }

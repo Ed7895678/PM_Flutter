@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../data/services/sp_addresses.dart';
 import 'confirmation_screen.dart';
 import 'package:projeto/widgets/header.dart';
 
+// Ecrã para selecionar a morada
 class AddressScreen extends StatefulWidget {
-  final String paymentMethod;
-  final String paymentDetail;
-  final double total;
+  final String paymentMethod; // Método de pagamento selecionado
+  final String paymentDetail; // Detalhes do pagamento
+  final double total; // Total da compra
 
   const AddressScreen({
     super.key,
@@ -19,93 +21,138 @@ class AddressScreen extends StatefulWidget {
 }
 
 class _AddressScreenState extends State<AddressScreen> {
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  bool _isNavigating = false;
+  List<Map<String, String>> _addresses = []; // Lista de moradas
+  String? _selectedAddressId; // ID da morada selecionada
+  bool _isNavigating = false; // Indica se está a navegar para o próximo ecrã
 
+  @override
+  void initState() {
+    super.initState();
+    _loadAddresses(); // Carrega as moradas ao iniciar
+  }
+
+  // Função para carregar as moradas disponíveis
+  Future<void> _loadAddresses() async {
+    try {
+      final addresses = await AddressService.getAddresses();
+      setState(() {
+        _addresses = addresses;
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar endereços: $e');
+    }
+  }
+
+  // Seleciona uma morada com base no ID
+  void _selectAddress(String addressId) {
+    setState(() {
+      _selectedAddressId = addressId;
+    });
+  }
+
+  // Navega para o ecrã de confirmação
   void _navigateToConfirmation() async {
-    // Evita múltiplos cliques durante a navegação
-    if (_isNavigating) return;
+    if (_isNavigating || _selectedAddressId == null) return;
 
     try {
       setState(() {
         _isNavigating = true;
       });
 
-      // Validar campos
-      if (_addressController.text.trim().isEmpty || _locationController.text.trim().isEmpty) {
-        throw 'Por favor, preencha todos os campos do endereço';
-      }
+      // Obtém os detalhes da morada selecionada
+      final selectedAddress = _addresses.firstWhere(
+            (address) => address['id'] == _selectedAddressId,
+      );
 
-      debugPrint('Iniciando navegação para ConfirmationScreen');
-      debugPrint('Método de Pagamento: ${widget.paymentMethod}');
-      debugPrint('Detalhes do Pagamento: ${widget.paymentDetail}');
-      debugPrint('Endereço: ${_addressController.text}');
-      debugPrint('Localização: ${_locationController.text}');
-      debugPrint('Total: ${widget.total}');
+      final morada = selectedAddress['morada'] ?? '';
+      final localizacao = selectedAddress['localizacao'] ?? '';
 
-      if (!mounted) return;
-
-      // Navegar para a próxima tela
+      // Navega para o ecrã de confirmação
       await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ConfirmationScreen(
             paymentMethod: widget.paymentMethod,
             paymentDetail: widget.paymentDetail,
-            address: _addressController.text,
-            location: _locationController.text,
+            address: morada,
+            location: localizacao,
             total: widget.total,
           ),
         ),
       );
-
-      debugPrint('Navegação para ConfirmationScreen concluída com sucesso');
     } catch (e) {
       debugPrint('Erro durante a navegação: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao continuar: $e')),
+      );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isNavigating = false;
-        });
-      }
+      setState(() {
+        _isNavigating = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Cabeçalho do ecrã
       appBar: const Header(
-        title: "Informações de Endereço",
+        title: "Escolher Morada",
       ),
+
+      // Corpo do ecrã
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _addressController,
-              decoration: const InputDecoration(
-                labelText: "Morada",
-                border: OutlineInputBorder(),
+            // Mensagem caso não existam moradas disponíveis
+            if (_addresses.isEmpty)
+              const Center(
+                child: Text(
+                  "Nenhuma morada disponível. Adicione uma morada no seu Perfil.",
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _locationController,
-              decoration: const InputDecoration(
-                labelText: "Localização",
-                border: OutlineInputBorder(),
-              ),
-            ),
+
+            // Lista de moradas disponíveis
+            if (_addresses.isNotEmpty)
+              ..._addresses.map((address) {
+                bool isSelected = _selectedAddressId == address['id'];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16), // Espaço entre os botões
+                  child: ElevatedButton(
+                    onPressed: () => _selectAddress(address['id']!),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: isSelected ? Colors.red : Colors.grey[300],
+                      foregroundColor: isSelected ? Colors.white : Colors.black,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Texto com a morada
+                        Text(
+                          address['morada'] ?? '',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 4), // Espaço entre textos
+
+                        // Texto com a localização
+                        Text(
+                          address['localizacao'] ?? '',
+                          style: const TextStyle(fontSize: 14, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
           ],
         ),
       ),
+
+      // Barra inferior com o botão para continuar
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -119,10 +166,12 @@ class _AddressScreenState extends State<AddressScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: _isNavigating ? null : _navigateToConfirmation,
+            onPressed: _selectedAddressId != null ? _navigateToConfirmation : null,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
+
+            // Botão com indicador de carregamento
             child: _isNavigating
                 ? const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -143,12 +192,5 @@ class _AddressScreenState extends State<AddressScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _addressController.dispose();
-    _locationController.dispose();
-    super.dispose();
   }
 }

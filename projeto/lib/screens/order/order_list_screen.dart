@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../main.dart';
 import '../../widgets/header.dart';
 
+// Ecrã que exibe a lista de pedidos
 class OrderListScreen extends StatefulWidget {
   const OrderListScreen({super.key});
 
@@ -11,15 +12,16 @@ class OrderListScreen extends StatefulWidget {
 }
 
 class _OrderListScreenState extends State<OrderListScreen> {
-  List<dynamic> _orders = [];
-  bool _isLoading = true;
+  List<dynamic> _orders = []; // Lista de pedidos
+  bool _isLoading = true; // Indica se os dados ainda estão a ser carregados
 
   @override
   void initState() {
     super.initState();
-    _loadOrders();
+    _loadOrders(); // Carrega os pedidos ao inicializar o ecrã
   }
 
+  // Carrega a lista de pedidos a partir da API
   Future<void> _loadOrders() async {
     try {
       final orders = await apiService.getOrders();
@@ -37,6 +39,7 @@ class _OrderListScreenState extends State<OrderListScreen> {
     }
   }
 
+  // Formata a data de um pedido
   String _formatDate(String dateStr) {
     try {
       final date = DateTime.parse(dateStr).toLocal();
@@ -49,26 +52,34 @@ class _OrderListScreenState extends State<OrderListScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
+      // Exibe um indicador de carregamento enquanto os dados são carregados
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
+      // Cabeçalho do ecrã
       appBar: const Header(
         title: "Pedidos",
       ),
+
+      // Corpo do ecrã com a lista de pedidos
       body: _orders.isEmpty
+      // Mensagem caso não existam pedidos
           ? const Center(child: Text('Nenhum pedido encontrado'))
           : ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: _orders.length,
         itemBuilder: (context, index) {
           final order = _orders[index];
+
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             child: ListTile(
               contentPadding: const EdgeInsets.all(16),
+
+              // Detalhes do pedido
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -95,7 +106,11 @@ class _OrderListScreenState extends State<OrderListScreen> {
                   ),
                 ],
               ),
+
+              // Ícone indicando que há mais detalhes disponíveis
               trailing: const Icon(Icons.chevron_right),
+
+              // Ação ao clicar no pedido: exibe os detalhes em um modal
               onTap: () {
                 showModalBottomSheet(
                   context: context,
@@ -111,6 +126,7 @@ class _OrderListScreenState extends State<OrderListScreen> {
   }
 }
 
+// Modal que exibe os detalhes de um pedido
 class OrderDetailsModal extends StatelessWidget {
   final Map<String, dynamic> order;
 
@@ -125,6 +141,7 @@ class OrderDetailsModal extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Título do modal
             const Text(
               'Itens do Pedido:',
               style: TextStyle(
@@ -133,6 +150,8 @@ class OrderDetailsModal extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Lista de itens do pedido
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -147,6 +166,7 @@ class OrderDetailsModal extends StatelessWidget {
                 return ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: productImage.isNotEmpty
+                  // Exibe a imagem do produto ou um ícone genérico
                       ? Image.network(
                     productImage,
                     width: 50,
@@ -155,8 +175,14 @@ class OrderDetailsModal extends StatelessWidget {
                     errorBuilder: (_, __, ___) => const Icon(Icons.image),
                   )
                       : const Icon(Icons.image),
+
+                  // Nome do produto
                   title: Text(productName),
+
+                  // Quantidade do produto
                   subtitle: Text('Quantidade: $quantity'),
+
+                  // Preço total do item
                   trailing: Text(
                     '€${(productPrice * quantity).toStringAsFixed(2)}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -165,17 +191,23 @@ class OrderDetailsModal extends StatelessWidget {
               },
             ),
             const Divider(),
+
+            // Endereço de entrega
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Endereço de entrega'),
               subtitle: Text(order['shipping_address'] ?? 'Endereço não disponível'),
             ),
+
+            // Método de pagamento
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Método de pagamento'),
               subtitle: Text(order['payment_method'] ?? 'Método não disponível'),
             ),
             const SizedBox(height: 16),
+
+            // Total do pedido
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

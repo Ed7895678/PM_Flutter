@@ -3,6 +3,7 @@ import '../../main.dart';
 import '../../widgets/header.dart';
 import '../order/payment_screen.dart';
 
+// Ecrã do carrinho
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -11,15 +12,15 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  Map<String, dynamic>? _cart;
-  List<Map<String, dynamic>> _products = [];
-  bool _isLoading = true;
-  double _total = 0.0;
+  Map<String, dynamic>? _cart; // Dados do carrinho
+  List<Map<String, dynamic>> _products = []; // Lista de produtos
+  bool _isLoading = true; // Indicador de carregamento
+  double _total = 0.0; // Total do carrinho
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    _loadInitialData(); // Carrega os dados iniciais
   }
 
   Future<void> _loadInitialData() async {
@@ -121,9 +122,14 @@ class _CartScreenState extends State<CartScreen> {
     final items = _cart?['items'] ?? [];
 
     return Scaffold(
+      // Cabeçalho do ecrã
       appBar: const Header(title: "Carrinho"),
+
+      // Corpo do ecrã
       body: items.isEmpty
+      // Mensagem caso o carrinho esteja vazio
           ? const Center(child: Text('Carrinho vazio'))
+      // Lista de produtos no carrinho
           : ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: items.length,
@@ -135,77 +141,101 @@ class _CartScreenState extends State<CartScreen> {
             return const SizedBox();
           }
 
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Image.network(
-                      product['image_url'] ?? '',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.image),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product['name'] ?? '',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+          return Column(
+            children: [
+              Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      // Imagem do produto
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '€${product['price']?.toString() ?? "0.00"}',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        child: Image.network(
+                          product['image_url'] ?? '',
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(Icons.image),
                         ),
-                        Row(
+                      ),
+
+                      const SizedBox(width: 16),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: item['quantity'] <= 1 ? null : () => _updateQuantity(
-                                item['product_id'],
-                                item['quantity'] - 1,
+                            // Nome do produto
+                            Text(
+                              product['name'] ?? '',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
-                            Text(item['quantity'].toString()),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () => _updateQuantity(
-                                item['product_id'],
-                                item['quantity'] + 1,
+
+                            const SizedBox(height: 4),
+
+                            // Preço do produto
+                            Text(
+                              '€${product['price']?.toString() ?? "0.00"}',
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
                               ),
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // Botões de alterar quantidade
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove),
+                                  onPressed: item['quantity'] <= 1
+                                      ? null
+                                      : () => _updateQuantity(
+                                    item['product_id'],
+                                    item['quantity'] - 1,
+                                  ),
+                                ),
+                                Text(item['quantity'].toString()),
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () => _updateQuantity(
+                                    item['product_id'],
+                                    item['quantity'] + 1,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+
+                      // Botão para remover o item do carrinho
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _updateQuantity(item['product_id'], 0),
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => _updateQuantity(item['product_id'], 0),
-                  ),
-                ],
+                ),
               ),
-            ),
+
+              // Espaço entre cartões
+              const SizedBox(height: 8),
+            ],
           );
         },
       ),
+
+      // Barra de navegação inferior com o total e botão de confirmação
       bottomNavigationBar: items.isEmpty
           ? null
           : Container(
@@ -223,6 +253,7 @@ class _CartScreenState extends State<CartScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Exibe o total do carrinho
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -243,7 +274,10 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 16),
+
+              // Botão para confirmar o carrinho
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

@@ -3,12 +3,13 @@ import 'package:projeto/widgets/header.dart';
 import 'package:projeto/data/services/api_service.dart';
 import '../home/home_screen.dart';
 
+// Ecrã de confirmação do pedido
 class ConfirmationScreen extends StatefulWidget {
-  final String paymentMethod;
-  final String paymentDetail;
-  final String address;
-  final String location;
-  final double total;
+  final String paymentMethod; // Método de pagamento selecionado
+  final String paymentDetail; // Detalhes do pagamento
+  final String address; // Morada de envio
+  final String location; // Localização da morada
+  final double total; // Total do pedido
 
   const ConfirmationScreen({
     super.key,
@@ -24,31 +25,32 @@ class ConfirmationScreen extends StatefulWidget {
 }
 
 class _ConfirmationScreenState extends State<ConfirmationScreen> {
-  final ApiService _apiService = ApiService();
-  late Future<List<dynamic>> _cartItems;
-  List<Map<String, dynamic>> _products = [];
-  bool _isLoading = false;
-  bool _isInitialized = false;
+  final ApiService _apiService = ApiService(); // Serviço para interagir com a API
+  late Future<List<dynamic>> _cartItems; // Itens do carrinho
+  List<Map<String, dynamic>> _products = []; // Lista de produtos
+  bool _isLoading = false; // Indicador de carregamento do pedido
+  bool _isInitialized = false; // Verifica se os dados foram carregados
 
   @override
   void initState() {
     super.initState();
     debugPrint('ConfirmationScreen - initState');
-    _initializeScreen();
+    _initializeScreen(); // Inicializa os dados do ecrã
   }
 
+  // Carrega os dados necessários (produtos e carrinho)
   Future<void> _initializeScreen() async {
     try {
       debugPrint('Iniciando carregamento dos dados');
       await _loadProducts();
       _cartItems = _loadCartItems();
-      debugPrint('Dados carregados com sucesso');
 
       if (mounted) {
         setState(() {
           _isInitialized = true;
         });
       }
+      debugPrint('Dados carregados com sucesso');
     } catch (e) {
       debugPrint('Erro ao inicializar tela: $e');
       if (mounted) {
@@ -59,6 +61,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
+  // Carrega os produtos disponíveis
   Future<void> _loadProducts() async {
     try {
       debugPrint('Carregando produtos');
@@ -75,6 +78,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
+  // Carrega os itens do carrinho
   Future<List<dynamic>> _loadCartItems() async {
     try {
       debugPrint('Carregando itens do carrinho');
@@ -88,6 +92,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
+  // Encontra um produto pelo ID
   Map<String, dynamic>? _findProduct(String productId) {
     try {
       return _products.firstWhere(
@@ -100,6 +105,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
+  // Exibe os detalhes do pagamento, morada e localização
   Widget _buildPaymentDetails() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,6 +121,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     );
   }
 
+  // Cria uma linha de informações com título e valor
   Widget _buildInfoRow(String label, String value) {
     return RichText(
       text: TextSpan(
@@ -139,6 +146,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     );
   }
 
+  // Botão para confirmar o pedido
   Widget _buildConfirmButton() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -164,6 +172,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     );
   }
 
+  // Confirma o pedido e salva os dados
   Future<void> _confirmOrder() async {
     setState(() => _isLoading = true);
     try {
@@ -207,6 +216,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
+  // Mostra um diálogo de sucesso
   void _showSuccessDialog() {
     showDialog(
       context: context,

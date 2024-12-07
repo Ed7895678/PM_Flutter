@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../widgets/header.dart';
 
+// Ecrã de registo
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -11,31 +12,40 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  // Controladores para os campos de texto (nome, email, palavra-passe)
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  // Indica se o botão de registo está desativado (enquanto está a carregar)
   bool _isLoading = false;
 
+  // Função de registo
   Future<void> _register() async {
+    // Define o estado como "a carregar"
     setState(() => _isLoading = true);
 
     try {
+      // Chamada à API para registar com os dados fornecidos
       await apiService.register(
         _nameController.text,
         _emailController.text,
         _passwordController.text,
       );
 
+      // Navega para o ecrã inicial se montado e registo bem-sucedido
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
+      // Mostra uma mensagem de erro em caso de falha
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro no registro: $e')),
+          SnackBar(content: Text('Erro no registo: $e')),
         );
       }
     } finally {
+      // Redefine o estado como "não está a carregar"
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -46,16 +56,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      // Header
       appBar: const Header(
         title: "Registo",
       ),
 
+      // Corpo do ecrã
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+            // Campo de entrada para o nome
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -64,7 +76,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
 
-            // Campo de Input de Email
+            // Campo de entrada para o email
             const SizedBox(height: 16),
             TextField(
               controller: _emailController,
@@ -72,26 +84,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: TextInputType.emailAddress, // Especifica o tipo de entrada
             ),
 
-            // Campo de Input de Password
+            // Campo de entrada para a palavra-passe
             const SizedBox(height: 16),
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(
-                labelText: 'Senha',
+                labelText: 'Palavra-passe',
                 border: OutlineInputBorder(),
               ),
-              obscureText: true,
+              obscureText: true, // Oculta a palavra-passe
             ),
 
-            // Botão de Registar
+            // Botão para realizar o registo
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _register,
+                onPressed: _isLoading ? null : _register, // Desativa se estiver a carregar
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -99,9 +111,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ? const SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(strokeWidth: 2), // Indicador de progresso
                 )
-                    : const Text('Registrar'),
+                    : const Text('Registar'), // Texto do botão
               ),
             ),
           ],

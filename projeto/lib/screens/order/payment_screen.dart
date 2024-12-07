@@ -30,6 +30,47 @@ class _PaymentScreenState extends State<PaymentScreen> {
     });
   }
 
+  void _continuePayment() {
+    if (_selectedPaymentMethod == "PayPal" || _selectedPaymentMethod == "MBWay") {
+      final phone = _phoneController.text.trim();
+
+      if (phone.length != 9 || !RegExp(r'^\d{9}$').hasMatch(phone)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Por favor, insira um número de telefone válido com 9 dígitos."),
+          ),
+        );
+        return;
+      }
+    }
+
+    if (_selectedPaymentMethod == "BANK_TRANSFER") {
+      final cardNumber = _cardNumberController.text.trim();
+
+      if (cardNumber.length != 9 || !RegExp(r'^\d{9}$').hasMatch(cardNumber)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Por favor, insira um número de cartão válido com 9 dígitos."),
+          ),
+        );
+        return;
+      }
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddressScreen(
+          paymentMethod: _selectedPaymentMethod,
+          paymentDetail: _selectedPaymentMethod == "PayPal" || _selectedPaymentMethod == "MBWay"
+              ? "Telefone: ${_phoneController.text}"
+              : _cardNumberController.text,
+          total: widget.total,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,9 +83,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ..._paymentMethods.map((method) {
-              bool isSelected = method == "Transferência Bancária" ?
-              _selectedPaymentMethod == "BANK_TRANSFER" :
-              _selectedPaymentMethod == method;
+              bool isSelected = method == "Transferência Bancária"
+                  ? _selectedPaymentMethod == "BANK_TRANSFER"
+                  : _selectedPaymentMethod == method;
 
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -59,20 +100,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               );
             }),
-
             const SizedBox(height: 16),
             if (_selectedPaymentMethod.isNotEmpty)
               Text(
-                _selectedPaymentMethod == "BANK_TRANSFER" ?
-                "Transferência Bancária" :
-                _selectedPaymentMethod,
+                _selectedPaymentMethod == "BANK_TRANSFER"
+                    ? "Transferência Bancária"
+                    : _selectedPaymentMethod,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
-
             const SizedBox(height: 16),
             if (_selectedPaymentMethod == "PayPal" ||
                 _selectedPaymentMethod == "MBWay") ...[
@@ -110,23 +149,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
         child: SafeArea(
           child: ElevatedButton(
-            onPressed: _selectedPaymentMethod.isNotEmpty
-                ? () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddressScreen(
-                    paymentMethod: _selectedPaymentMethod,
-                    paymentDetail: _selectedPaymentMethod == "PayPal" ||
-                        _selectedPaymentMethod == "MBWay"
-                        ? "Telefone: ${_phoneController.text}"
-                        : _cardNumberController.text,
-                    total: widget.total,
-                  ),
-                ),
-              );
-            }
-                : null,
+            onPressed: _selectedPaymentMethod.isNotEmpty ? _continuePayment : null,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),

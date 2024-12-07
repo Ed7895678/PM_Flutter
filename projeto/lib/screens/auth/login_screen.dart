@@ -1,8 +1,8 @@
-// lib/screens/auth/login_screen.dart
 import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../widgets/header.dart';
 
+// Ecrã de login
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -11,26 +11,36 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // Controladores para os campos de texto de email e palavra-passe
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  // Indica se o botão de login está desativado (enquanto está a carregar)
   bool _isLoading = false;
 
+  // Função de login
   Future<void> _login() async {
+    // Define o estado como "a carregar"
     setState(() => _isLoading = true);
 
     try {
+      // Chamada à API para fazer login com o email e a palavra-passe
       final response = await apiService.login(
         _emailController.text,
         _passwordController.text,
       );
 
+      // Navega para o ecrã inicial se montado e login bem-sucedido
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
+      // Mostra uma mensagem de erro caso o login falhe
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro no login: $e')),
+          const SnackBar(
+            content: Text('A palavra-passe ou o login estão incorretos'),
+          ),
         );
       }
     } finally {
@@ -44,7 +54,6 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      // Header
       appBar: const Header(
         title: "Login",
       ),
@@ -54,34 +63,36 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
-            // Campo de input: User
+            // Campo de entrada para o email
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: TextInputType.emailAddress, // Define o tipo de entrada
             ),
 
-            // Campo de input: Password
             const SizedBox(height: 16),
+
+            // Campo de entrada para a palavra-passe
             TextField(
               controller: _passwordController,
               decoration: const InputDecoration(
-                labelText: 'Senha',
+                labelText: 'Palavra-passe',
                 border: OutlineInputBorder(),
               ),
-              obscureText: true,
+              obscureText: true, // Oculta o texto digitado (palavra-passe)
             ),
 
-            // Botão Entrar
+            // Espaçamento antes do botão "Entrar"
             const SizedBox(height: 24),
+
+            // Botão para fazer login
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _login,
+                onPressed: _isLoading ? null : _login, // Desativa se estiver a carregar
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -89,18 +100,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     ? const SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(strokeWidth: 2), // Indicador de progresso
                 )
                     : const Text('Entrar'),
               ),
             ),
 
-            // Botão "Criar Conta"
+            // Botão para o ecrã de registo
             Container(
-              padding: const EdgeInsets.only(top: 24), // Padding para dar espaço entre botões
+              padding: const EdgeInsets.only(top: 24),
               child: TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/register'),
-                child: const Text('Ainda não tens conta? Clica aqui'),
+                child: const Text('Ainda não tens conta? Regista-te aqui'),
               ),
             ),
           ],

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../../main.dart';
 import '../../widgets/header.dart';
 
+// Ecrã de detalhes do produto
 class ProductDetailScreen extends StatefulWidget {
-  final String productId;
+  final String productId; // ID do produto
 
   const ProductDetailScreen({super.key, required this.productId});
 
@@ -12,16 +13,17 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
-  Map<String, dynamic>? _product;
-  bool _isLoading = true;
-  int _quantity = 1;
+  Map<String, dynamic>? _product; // Dados do produto
+  bool _isLoading = true; // Indicador de carregamento
+  int _quantity = 1; // Quantidade do produto selecionada
 
   @override
   void initState() {
     super.initState();
-    _loadProduct();
+    _loadProduct(); // Carrega os dados do produto ao inicializar o ecrã
   }
 
+  // Função para carregar os dados do produto
   Future<void> _loadProduct() async {
     try {
       final List<dynamic> products = await apiService.getProducts();
@@ -44,6 +46,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  // Incrementa a quantidade do produto
   void _incrementQuantity() {
     if (_product != null && _quantity < _product!['stock']) {
       setState(() {
@@ -52,6 +55,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  // Decrementa a quantidade do produto
   void _decrementQuantity() {
     if (_quantity > 1) {
       setState(() {
@@ -60,6 +64,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  // Adiciona o produto ao carrinho
   Future<void> _addToCart() async {
     try {
       final currentCart = await apiService.getCart();
@@ -109,13 +114,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
 
     return Scaffold(
+      // Cabeçalho com o nome do produto
       appBar: Header(
         title: _product!['name'],
       ),
+
+      // Corpo do ecrã com os detalhes do produto
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Imagem do produto
             Container(
               height: 300,
               width: double.infinity,
@@ -127,11 +136,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 const Icon(Icons.image, size: 100),
               ),
             ),
+
+            // Detalhes do produto
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Nome do produto
                   Text(
                     _product!['name'],
                     style: const TextStyle(
@@ -139,7 +151,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 8),
+
+                  // Preço do produto
                   Text(
                     '€${_product!['price']}',
                     style: const TextStyle(
@@ -148,12 +163,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
                   const SizedBox(height: 16),
+
+                  // Descrição do produto
                   Text(
                     _product!['description'] ?? '',
                     style: const TextStyle(fontSize: 16),
                   ),
+
                   const SizedBox(height: 24),
+
+                  // Especificações do produto
                   const Text(
                     'Especificações',
                     style: TextStyle(
@@ -162,9 +183,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
+
                   if (_product!['specs'] != null)
                     ..._buildSpecifications(_product!['specs']),
+
                   const SizedBox(height: 16),
+
+                  // Informações de stock
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -182,18 +207,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 24),
-                  // Seletor de quantidade com botão de decremento desabilitado quando quantidade = 1
+
+                  // Seletor de quantidade
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.remove),
                         onPressed: _quantity <= 1 ? null : _decrementQuantity,
-                        style: IconButton.styleFrom(
-                          // Deixa o botão mais visualmente desabilitado quando quantidade = 1
-                          foregroundColor: _quantity <= 1 ? Colors.grey[400] : null,
-                        ),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -217,27 +240,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ],
         ),
       ),
+
+      // Botão para adicionar ao carrinho
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _addToCart,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Text('Adicionar ao Carrinho'),
-                ),
-              ),
-            ],
+          child: ElevatedButton(
+            onPressed: _addToCart,
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: const Text('Adicionar ao Carrinho'),
           ),
         ),
       ),
     );
   }
 
+  // Constrói a lista de especificações do produto
   List<Widget> _buildSpecifications(Map<String, dynamic> specs) {
     return specs.entries.map((entry) {
       return Padding(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/services/sp_addresses.dart';
 import '../../widgets/header.dart';
 
+// Tela para gerenciar a lista de endereços
 class AddressesListScreen extends StatefulWidget {
   const AddressesListScreen({super.key});
 
@@ -10,18 +11,18 @@ class AddressesListScreen extends StatefulWidget {
 }
 
 class _AddressesListScreenState extends State<AddressesListScreen> {
-  List<Map<String, String>> _addresses = [];
+  List<Map<String, String>> _addresses = []; // Lista de endereços
 
-  final TextEditingController _streetController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _streetController = TextEditingController(); // Controlador para a morada
+  final TextEditingController _locationController = TextEditingController(); // Controlador para a localização
 
   @override
   void initState() {
     super.initState();
-    _loadAddresses();
+    _loadAddresses(); // Carrega os endereços ao iniciar
   }
 
-  // Carregar endereços do SharedPreferences
+  // Função para carregar endereços salvos
   Future<void> _loadAddresses() async {
     try {
       final storedAddresses = await AddressService.getAddresses();
@@ -36,7 +37,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
     }
   }
 
-  // Adicionar um novo endereço
+  // Função para adicionar um novo endereço
   Future<void> _addAddress() async {
     if (_streetController.text.isNotEmpty && _locationController.text.isNotEmpty) {
       try {
@@ -46,7 +47,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
         );
         _streetController.clear();
         _locationController.clear();
-        await _loadAddresses(); // Atualiza a lista
+        await _loadAddresses(); // Atualiza a lista de endereços
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Endereço salvo com sucesso!')),
         );
@@ -63,11 +64,11 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
     }
   }
 
-  // Remover endereço por ID
+  // Função para remover um endereço por ID
   Future<void> _removeAddress(String id) async {
     try {
       await AddressService.removeAddressById(id);
-      await _loadAddresses();
+      await _loadAddresses(); // Atualiza a lista após remoção
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Endereço removido com sucesso!')),
       );
@@ -90,6 +91,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Título da seção de endereços salvos
             const Text(
               "Endereços Guardados",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -121,7 +123,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
               ),
             ),
 
-            // Campos para adicionar novo endereço
+            // Título da seção para adicionar novo endereço
             const SizedBox(height: 16),
             const Text(
               "Adicionar Novo Endereço",
@@ -129,6 +131,8 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
             ),
 
             const SizedBox(height: 16),
+
+            // Campo de entrada para a morada
             TextField(
               controller: _streetController,
               decoration: const InputDecoration(
@@ -138,6 +142,8 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
             ),
 
             const SizedBox(height: 16),
+
+            // Campo de entrada para a localização
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
@@ -147,6 +153,8 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
             ),
 
             const SizedBox(height: 16),
+
+            // Botão para salvar novo endereço
             ElevatedButton(
               onPressed: _addAddress,
               child: const Text("Salvar Endereço"),

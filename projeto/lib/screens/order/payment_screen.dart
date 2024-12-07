@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'address_screen.dart';
 import 'package:projeto/widgets/header.dart';
 
+// Ecrã para selecionar o método de pagamento
 class PaymentScreen extends StatefulWidget {
-  final double total;
+  final double total; // Total do pedido
 
   const PaymentScreen({super.key, required this.total});
 
@@ -12,16 +13,18 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  String _selectedPaymentMethod = '';
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _cardNumberController = TextEditingController();
+  String _selectedPaymentMethod = ''; // Método de pagamento selecionado
+  final TextEditingController _phoneController = TextEditingController(); // Controlador para MBWay ou PayPal
+  final TextEditingController _cardNumberController = TextEditingController(); // Controlador para Transferência Bancária
 
+  // Lista de métodos de pagamento disponíveis
   final List<String> _paymentMethods = [
     "PayPal",
     "MBWay",
     "Transferência Bancária",
   ];
 
+  // Define o método de pagamento selecionado
   void _selectPaymentMethod(String method) {
     setState(() {
       _selectedPaymentMethod = method == "Transferência Bancária" ? "BANK_TRANSFER" : method;
@@ -30,7 +33,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     });
   }
 
+  // Continua para o próximo ecrã após validação
   void _continuePayment() {
+    // Validações para PayPal ou MBWay
     if (_selectedPaymentMethod == "PayPal" || _selectedPaymentMethod == "MBWay") {
       final phone = _phoneController.text.trim();
 
@@ -44,6 +49,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       }
     }
 
+    // Validações para Transferência Bancária
     if (_selectedPaymentMethod == "BANK_TRANSFER") {
       final cardNumber = _cardNumberController.text.trim();
 
@@ -57,6 +63,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       }
     }
 
+    // Navega para o ecrã de seleção de morada
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -74,14 +81,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Cabeçalho do ecrã
       appBar: const Header(
         title: "Informações de Pagamento",
       ),
+
+      // Corpo do ecrã
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Botões para selecionar o método de pagamento
             ..._paymentMethods.map((method) {
               bool isSelected = method == "Transferência Bancária"
                   ? _selectedPaymentMethod == "BANK_TRANSFER"
@@ -100,7 +111,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               );
             }),
+
             const SizedBox(height: 16),
+
+            // Mostra o método de pagamento selecionado
             if (_selectedPaymentMethod.isNotEmpty)
               Text(
                 _selectedPaymentMethod == "BANK_TRANSFER"
@@ -112,9 +126,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
+
             const SizedBox(height: 16),
-            if (_selectedPaymentMethod == "PayPal" ||
-                _selectedPaymentMethod == "MBWay") ...[
+
+            // Campos adicionais dependendo do método selecionado
+            if (_selectedPaymentMethod == "PayPal" || _selectedPaymentMethod == "MBWay") ...[
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
@@ -136,6 +152,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ],
         ),
       ),
+
+      // Barra inferior com botão de continuação
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(

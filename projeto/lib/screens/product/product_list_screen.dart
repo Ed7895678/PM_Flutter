@@ -3,6 +3,7 @@ import '../../main.dart';
 import '../../widgets/header.dart';
 import 'product_detail_screen.dart';
 
+// Ecrã de listagem de produtos
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
 
@@ -11,21 +12,22 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State {
-  List _products = [];
-  List _filteredProducts = [];
-  List _categories = [];
-  String _selectedCategory = 'Todos';
-  bool _isLoading = true;
-  bool _isCategoriesLoading = true;
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  List _products = []; // Lista completa de produtos
+  List _filteredProducts = []; // Lista filtrada de produtos
+  List _categories = []; // Lista de categorias disponíveis
+  String _selectedCategory = 'Todos'; // Categoria selecionada
+  bool _isLoading = true; // Indicador de carregamento de produtos
+  bool _isCategoriesLoading = true; // Indicador de carregamento de categorias
+  final TextEditingController _searchController = TextEditingController(); // Controlador para pesquisa
+  String _searchQuery = ''; // Texto de pesquisa atual
 
   @override
   void initState() {
     super.initState();
-    _loadCategories();
-    _loadProducts();
+    _loadCategories(); // Carrega as categorias ao iniciar
+    _loadProducts(); // Carrega os produtos ao iniciar
 
+    // Atualiza a lista de produtos conforme o usuário digita na pesquisa
     _searchController.addListener(() {
       _filterProductsBySearch(_searchController.text);
     });
@@ -33,10 +35,11 @@ class _ProductListScreenState extends State {
 
   @override
   void dispose() {
-    _searchController.dispose();
+    _searchController.dispose(); // Libera o controlador ao fechar o widget
     super.dispose();
   }
 
+  // Carrega as categorias a partir da API
   Future<void> _loadCategories() async {
     try {
       final categories = await apiService.getCategories();
@@ -47,9 +50,7 @@ class _ProductListScreenState extends State {
         ];
 
         _categories.addAll(
-          categories.map(
-                (category) => Map.from(category),
-          ),
+          categories.map((category) => Map.from(category)),
         );
 
         _isCategoriesLoading = false;
@@ -64,6 +65,7 @@ class _ProductListScreenState extends State {
     }
   }
 
+  // Carrega os produtos, podendo ser filtrados por categoria
   Future<void> _loadProducts([String? categoryId]) async {
     try {
       setState(() => _isLoading = true);
@@ -84,7 +86,7 @@ class _ProductListScreenState extends State {
     }
   }
 
-  // Nova função só para filtrar por pesquisa
+  // Filtra os produtos com base na pesquisa
   void _filterProductsBySearch(String searchQuery) {
     setState(() {
       _searchQuery = searchQuery;
@@ -101,19 +103,20 @@ class _ProductListScreenState extends State {
     });
   }
 
-  // Função modificada para tratar mudança de categoria
+  // Filtra os produtos por categoria
   void _filterByCategory(String categoryId) async {
     setState(() => _selectedCategory = categoryId);
 
-    // Só recarrega os produtos se mudar de categoria
+    // Recarrega os produtos se a categoria mudar
     await _loadProducts(categoryId);
 
-    // Reaplica o filtro de pesquisa se existir
+    // Aplica o filtro de pesquisa, se houver
     if (_searchQuery.isNotEmpty) {
       _filterProductsBySearch(_searchQuery);
     }
   }
 
+  // Exibe o modal para seleção de categoria
   void _showFilterModal() {
     showModalBottomSheet(
       context: context,
@@ -146,6 +149,7 @@ class _ProductListScreenState extends State {
     );
   }
 
+  // Adiciona um produto ao carrinho
   Future _addToCart(Map product) async {
     try {
       final currentCart = await apiService.getCart();
@@ -192,10 +196,12 @@ class _ProductListScreenState extends State {
       appBar: const Header(title: "Produtos"),
       body: Column(
         children: [
+          // Campo de pesquisa e botão de categorias
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
+                // Campo de pesquisa
                 Expanded(
                   flex: 2,
                   child: TextField(
@@ -221,6 +227,7 @@ class _ProductListScreenState extends State {
                   ),
                 ),
                 const SizedBox(width: 16),
+                // Botão de filtro por categorias
                 Expanded(
                   flex: 1,
                   child: ElevatedButton.icon(
@@ -237,6 +244,8 @@ class _ProductListScreenState extends State {
               ],
             ),
           ),
+
+          // Lista de produtos
           Expanded(
             child: _filteredProducts.isEmpty
                 ? const Center(
@@ -256,6 +265,7 @@ class _ProductListScreenState extends State {
               itemCount: _filteredProducts.length,
               itemBuilder: (context, index) {
                 final product = _filteredProducts[index];
+
                 return Card(
                   child: InkWell(
                     onTap: () {
@@ -271,6 +281,7 @@ class _ProductListScreenState extends State {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Imagem do produto
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
@@ -289,6 +300,7 @@ class _ProductListScreenState extends State {
                             ),
                           ),
                         ),
+                        // Nome, preço e botão de adicionar ao carrinho
                         Padding(
                           padding: const EdgeInsets.all(8),
                           child: Column(

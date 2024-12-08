@@ -35,6 +35,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   // Continua para o próximo ecrã após validação
   void _continuePayment() {
+
     // Validações para PayPal ou MBWay
     if (_selectedPaymentMethod == "PayPal" || _selectedPaymentMethod == "MBWay") {
       final phone = _phoneController.text.trim();
@@ -42,7 +43,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       if (phone.length != 9 || !RegExp(r'^\d{9}$').hasMatch(phone)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Por favor, insira um número de telefone válido com 9 dígitos."),
+            content: Text("Insira um número de telemovél válido."),
           ),
         );
         return;
@@ -56,7 +57,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       if (cardNumber.length != 9 || !RegExp(r'^\d{9}$').hasMatch(cardNumber)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Por favor, insira um número de cartão válido com 9 dígitos."),
+            content: Text("Insira um número de cartão válido."),
           ),
         );
         return;
@@ -64,14 +65,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
 
     // Navega para o ecrã de seleção de morada
+    // Passa os dados de metodo de pagamento e detalhes
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AddressScreen(
           paymentMethod: _selectedPaymentMethod,
           paymentDetail: _selectedPaymentMethod == "PayPal" || _selectedPaymentMethod == "MBWay"
-              ? "Telefone: ${_phoneController.text}"
-              : _cardNumberController.text,
+              ? "Numero de Telemovél: ${_phoneController.text}"
+              : "Numero do Cartão: ${_cardNumberController.text}",
           total: widget.total,
         ),
       ),
@@ -83,7 +85,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Scaffold(
       // Cabeçalho do ecrã
       appBar: const Header(
-        title: "Informações de Pagamento",
+        title: "Metodo de Pagamento",
       ),
 
       // Corpo do ecrã
@@ -92,7 +94,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Botões para selecionar o método de pagamento
+
+            // Selecionar Metodo de pagamento
             ..._paymentMethods.map((method) {
               bool isSelected = method == "Transferência Bancária"
                   ? _selectedPaymentMethod == "BANK_TRANSFER"
@@ -104,6 +107,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   onPressed: () => _selectPaymentMethod(method),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    // Cores dos botões quando pressionados
                     backgroundColor: isSelected ? Colors.red : Colors.grey[300],
                     foregroundColor: isSelected ? Colors.white : Colors.black,
                   ),
@@ -129,7 +133,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
             const SizedBox(height: 16),
 
-            // Campos adicionais dependendo do método selecionado
+            // Campos dependentes do método selecionado
             if (_selectedPaymentMethod == "PayPal" || _selectedPaymentMethod == "MBWay") ...[
               TextField(
                 controller: _phoneController,

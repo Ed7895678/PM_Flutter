@@ -122,13 +122,14 @@ class _CartScreenState extends State<CartScreen> {
     final items = _cart?['items'] ?? [];
 
     return Scaffold(
-      // Cabeçalho do ecrã
+      // Header
       appBar: const Header(title: "Carrinho"),
 
-      // Corpo do ecrã
+      // Corpo
       body: items.isEmpty
       // Mensagem caso o carrinho esteja vazio
           ? const Center(child: Text('Carrinho vazio'))
+
       // Lista de produtos no carrinho
           : ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -149,6 +150,7 @@ class _CartScreenState extends State<CartScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
+
                       // Imagem do produto
                       Container(
                         width: 80,
@@ -192,11 +194,12 @@ class _CartScreenState extends State<CartScreen> {
 
                             const SizedBox(height: 8),
 
-                            // Botões de alterar quantidade
+                            // Botões para alterar quantidade
                             Row(
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.remove),
+                                  // Não permitir quantidades abaixo de 1
                                   onPressed: item['quantity'] <= 1
                                       ? null
                                       : () => _updateQuantity(
@@ -249,6 +252,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ],
         ),
+
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -277,7 +281,7 @@ class _CartScreenState extends State<CartScreen> {
 
               const SizedBox(height: 16),
 
-              // Botão para confirmar o carrinho
+              // Botão para confirmar
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -292,7 +296,7 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     );
                   },
-                  child: const Text('Confirmar Carrinho'),
+                  child: const Text('Continuar'),
                 ),
               ),
             ],

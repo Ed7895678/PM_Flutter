@@ -4,6 +4,7 @@ import 'confirmation_screen.dart';
 import 'package:projeto/widgets/header.dart';
 
 // Ecrã para selecionar a morada
+// Dados vindos de trás
 class AddressScreen extends StatefulWidget {
   final String paymentMethod; // Método de pagamento selecionado
   final String paymentDetail; // Detalhes do pagamento
@@ -31,7 +32,7 @@ class _AddressScreenState extends State<AddressScreen> {
     _loadAddresses(); // Carrega as moradas ao iniciar
   }
 
-  // Função para carregar as moradas disponíveis
+  // Função para carregar as moradas disponíveis nas SP
   Future<void> _loadAddresses() async {
     try {
       final addresses = await AddressService.getAddresses();
@@ -68,6 +69,7 @@ class _AddressScreenState extends State<AddressScreen> {
       final localizacao = selectedAddress['localizacao'] ?? '';
 
       // Navega para o ecrã de confirmação
+      // Passa os dados acumulados dos dois ecrãs (Pagamento e Endereço)
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -97,7 +99,7 @@ class _AddressScreenState extends State<AddressScreen> {
     return Scaffold(
       // Cabeçalho do ecrã
       appBar: const Header(
-        title: "Escolher Morada",
+        title: "Morada de Entrega",
       ),
 
       // Corpo do ecrã
@@ -106,11 +108,12 @@ class _AddressScreenState extends State<AddressScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Mensagem caso não existam moradas disponíveis
+
+            // Caso não existam moradas disponíveis
             if (_addresses.isEmpty)
               const Center(
                 child: Text(
-                  "Nenhuma morada disponível. Adicione uma morada no seu Perfil.",
+                  "Nenhuma morada está disponível. Adicione uma morada no seu Perfil.",
                   style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ),
@@ -120,7 +123,8 @@ class _AddressScreenState extends State<AddressScreen> {
               ..._addresses.map((address) {
                 bool isSelected = _selectedAddressId == address['id'];
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 16), // Espaço entre os botões
+
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: ElevatedButton(
                     onPressed: () => _selectAddress(address['id']!),
                     style: ElevatedButton.styleFrom(
@@ -131,14 +135,15 @@ class _AddressScreenState extends State<AddressScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Texto com a morada
+
+                        // Morada (Rua, Nº)
                         Text(
                           address['morada'] ?? '',
                           style: const TextStyle(fontSize: 16),
                         ),
-                        const SizedBox(height: 4), // Espaço entre textos
+                        const SizedBox(height: 4),
 
-                        // Texto com a localização
+                        // Localidade (Concelho, Distrito)
                         Text(
                           address['localizacao'] ?? '',
                           style: const TextStyle(fontSize: 14, color: Colors.black54),

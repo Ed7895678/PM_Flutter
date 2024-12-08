@@ -46,7 +46,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  // Incrementa a quantidade do produto
+  // Incrementa a quantidade
   void _incrementQuantity() {
     if (_product != null && _quantity < _product!['stock']) {
       setState(() {
@@ -55,7 +55,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  // Decrementa a quantidade do produto
+  // Decrementa a quantidade
   void _decrementQuantity() {
     if (_quantity > 1) {
       setState(() {
@@ -119,11 +119,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         title: _product!['name'],
       ),
 
-      // Corpo do ecrã com os detalhes do produto
+      // Corpo do ecrã
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             // Imagem do produto
             Container(
               height: 300,
@@ -143,6 +144,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   // Nome do produto
                   Text(
                     _product!['name'],
@@ -210,7 +212,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Seletor de quantidade
+                  // Mudar quantidade
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

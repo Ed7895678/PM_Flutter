@@ -7,12 +7,12 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
   final double elevation;
 
   const Header({
-    Key? key,
+    super.key,
     required this.title,
     this.backgroundColor = Colors.red,
     this.textColor = Colors.white,
     this.elevation = 0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
       ),
       backgroundColor: backgroundColor,
       elevation: elevation,
-      iconTheme: IconThemeData(color: textColor), // Para ícones no AppBar
+      iconTheme: IconThemeData(color: textColor),
     );
   }
 

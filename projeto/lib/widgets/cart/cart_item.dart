@@ -18,6 +18,7 @@ class _CartScreenState extends State<CartScreen> {
     _loadCart();
   }
 
+  // Carregar itens do carrinho
   Future<void> _loadCart() async {
     try {
       final cart = await apiService.getCart();
@@ -35,6 +36,7 @@ class _CartScreenState extends State<CartScreen> {
     }
   }
 
+  // Atualizar a quantidade de itens
   Future<void> _updateQuantity(String productId, int quantity) async {
     try {
       final items = _cart?['items'].map((item) {
@@ -65,7 +67,11 @@ class _CartScreenState extends State<CartScreen> {
     final total = _cart?['total'] ?? 0.0;
 
     return Scaffold(
+      // Header
       appBar: AppBar(title: const Text('Carrinho')),
+
+      // Corpo
+      // Listview com itens do carrinho
       body: items.isEmpty
           ? const Center(child: Text('Carrinho vazio'))
           : ListView.builder(
@@ -85,6 +91,8 @@ class _CartScreenState extends State<CartScreen> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+
+                  // Remove
                   IconButton(
                     icon: const Icon(Icons.remove),
                     onPressed: () => _updateQuantity(
@@ -92,6 +100,8 @@ class _CartScreenState extends State<CartScreen> {
                       item['quantity'] - 1,
                     ),
                   ),
+
+                  // Adicionar
                   Text('${item['quantity']}'),
                   IconButton(
                     icon: const Icon(Icons.add),
@@ -117,6 +127,7 @@ class _CartScreenState extends State<CartScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Total
                   const Text(
                     'Total:',
                     style: TextStyle(
@@ -124,6 +135,7 @@ class _CartScreenState extends State<CartScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  // Valor
                   Text(
                     '€${total.toStringAsFixed(2)}',
                     style: const TextStyle(
@@ -133,6 +145,8 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ],
               ),
+
+              // Função antiga de teste
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,

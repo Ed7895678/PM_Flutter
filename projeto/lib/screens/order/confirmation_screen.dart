@@ -3,13 +3,13 @@ import 'package:projeto/widgets/header.dart';
 import 'package:projeto/data/services/api_service.dart';
 import '../home/home_screen.dart';
 
-// Ecrã de confirmação do pedido
+// Informações provenientes das paginas anteriores
 class ConfirmationScreen extends StatefulWidget {
-  final String paymentMethod; // Método de pagamento selecionado
-  final String paymentDetail; // Detalhes do pagamento
-  final String address; // Morada de envio
-  final String location; // Localização da morada
-  final double total; // Total do pedido
+  final String paymentMethod; // Metodo de Pagamento
+  final String paymentDetail; // Detalhes
+  final String address; // Morada
+  final String location; // Localização
+  final double total; // Total
 
   const ConfirmationScreen({
     super.key,
@@ -38,7 +38,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     _initializeScreen(); // Inicializa os dados do ecrã
   }
 
-  // Carrega os dados necessários (produtos e carrinho)
+  // Carrega os dados necessários
   Future<void> _initializeScreen() async {
     try {
       debugPrint('Iniciando carregamento dos dados');
@@ -92,7 +92,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
-  // Encontra um produto pelo ID
+  // Encontra os produtos pelo ID
   Map<String, dynamic>? _findProduct(String productId) {
     try {
       return _products.firstWhere(
@@ -112,7 +112,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
       children: [
         _buildInfoRow("Método de Pagamento", widget.paymentMethod),
         const SizedBox(height: 8),
-        _buildInfoRow("Detalhes do Pagamento", widget.paymentDetail),
+        _buildInfoRow("", widget.paymentDetail),
         const SizedBox(height: 8),
         _buildInfoRow("Morada", widget.address),
         const SizedBox(height: 8),
@@ -166,16 +166,17 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
             width: 20,
             child: CircularProgressIndicator(strokeWidth: 2),
           )
-              : const Text("Confirmar Pedido"),
+              : const Text("Confirmar"),
         ),
       ),
     );
   }
 
-  // Confirma o pedido e salva os dados
+  // Confirma o pedido e guarda os dados
   Future<void> _confirmOrder() async {
     setState(() => _isLoading = true);
     try {
+      // Construção da Ordem
       final cart = await _apiService.getCart();
       final items = cart['items'] ?? [];
 
@@ -198,6 +199,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
         "status": "pending",
       };
 
+      // Criação da Ordem
       await _apiService.createOrder(orderData);
       await _apiService.updateCart([]);
 
@@ -216,7 +218,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     }
   }
 
-  // Mostra um diálogo de sucesso
+  // Feedback ao utilizador
   void _showSuccessDialog() {
     showDialog(
       context: context,
@@ -236,17 +238,20 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     );
   }
 
+  // Estrutura da Pagina
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized) {
-      return Scaffold(
-        appBar: const Header(title: "Confirmação"),
-        body: const Center(child: CircularProgressIndicator()),
+      return const Scaffold(
+        appBar: Header(title: "Confirmação"),
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: const Header(title: "Confirmação"),
+
+      appBar: const Header(title: "Confirmação do Pedido"),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -254,21 +259,25 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                "Itens do Pedido",
+                "Itens",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
+
               const SizedBox(height: 16),
               FutureBuilder<List<dynamic>>(
                 future: _cartItems,
                 builder: (context, snapshot) {
+
+                  // Enquanto os itens não voltam, loading
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
+                  // Erro ao retornar lista de itens
                   if (snapshot.hasError) {
                     return Center(
                       child: Text(
@@ -278,10 +287,12 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                     );
                   }
 
+                  // Verifica o estado do carrinho
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(child: Text("Carrinho vazio"));
                   }
 
+                  // Usamos o Listview para mostrar cada item no carrinho
                   final items = snapshot.data!;
                   return ListView.builder(
                     shrinkWrap: true,
@@ -313,6 +324,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                                   errorBuilder: (_, __, ___) => const Icon(Icons.image),
                                 ),
                               ),
+
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Column(
@@ -352,6 +364,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                   );
                 },
               ),
+              // Total da ordem
               const SizedBox(height: 32),
               Text(
                 "Total: €${widget.total.toStringAsFixed(2)}",
@@ -362,6 +375,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              // Detalhes da compra
               const SizedBox(height: 32),
               _buildPaymentDetails(),
               const SizedBox(height: 32),

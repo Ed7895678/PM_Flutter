@@ -22,7 +22,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
     _loadAddresses(); // Carrega os endereços ao iniciar
   }
 
-  // Função para carregar endereços salvos
+  // Função para carregar endereços guardados
   Future<void> _loadAddresses() async {
     try {
       final storedAddresses = await AddressService.getAddresses();
@@ -45,6 +45,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
           _streetController.text,
           _locationController.text,
         );
+
         _streetController.clear();
         _locationController.clear();
         await _loadAddresses(); // Atualiza a lista de endereços
@@ -75,7 +76,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
     } catch (e) {
       print("Erro ao remover endereço: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao remover endereço. Tente novamente!')),
+        const SnackBar(content: Text('Erro ao remover o endereço.')),
       );
     }
   }
@@ -86,12 +87,12 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
       appBar: const Header(
         title: "Lista de Endereços",
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Título da seção de endereços salvos
             const Text(
               "Endereços Guardados",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -114,6 +115,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
                       trailing: IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
                         onPressed: () {
+                          // Remove o endereço, passando o ID
                           _removeAddress(address['id']!);
                         },
                       ),
@@ -123,7 +125,7 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
               ),
             ),
 
-            // Título da seção para adicionar novo endereço
+            // Adicionar outro endereço
             const SizedBox(height: 16),
             const Text(
               "Adicionar Novo Endereço",
@@ -136,28 +138,28 @@ class _AddressesListScreenState extends State<AddressesListScreen> {
             TextField(
               controller: _streetController,
               decoration: const InputDecoration(
-                labelText: "Morada (Rua, Número)",
+                labelText: "Morada",
                 border: OutlineInputBorder(),
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // Campo de entrada para a localização
+            // Campo de entrada para a Localidade
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
-                labelText: "Localização (Concelho, Distrito)",
+                labelText: "Localidade",
                 border: OutlineInputBorder(),
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // Botão para salvar novo endereço
+            // Guardar endereço
             ElevatedButton(
               onPressed: _addAddress,
-              child: const Text("Salvar Endereço"),
+              child: const Text("Guardar Endereço"),
             ),
           ],
         ),

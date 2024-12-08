@@ -35,11 +35,11 @@ class _ProductListScreenState extends State {
 
   @override
   void dispose() {
-    _searchController.dispose(); // Libera o controlador ao fechar o widget
+    _searchController.dispose(); // Liberta o controlador ao fechar o widget
     super.dispose();
   }
 
-  // Carrega as categorias a partir da API
+  // Carrega as categorias
   Future<void> _loadCategories() async {
     try {
       final categories = await apiService.getCategories();
@@ -86,7 +86,7 @@ class _ProductListScreenState extends State {
     }
   }
 
-  // Filtra os produtos com base na pesquisa
+  // Filtra os produtos com base no input na barra de pesquisa
   void _filterProductsBySearch(String searchQuery) {
     setState(() {
       _searchQuery = searchQuery;
@@ -110,7 +110,7 @@ class _ProductListScreenState extends State {
     // Recarrega os produtos se a categoria mudar
     await _loadProducts(categoryId);
 
-    // Aplica o filtro de pesquisa, se houver
+    // Aplica o filtro de pesquisa, se este existir
     if (_searchQuery.isNotEmpty) {
       _filterProductsBySearch(_searchQuery);
     }
@@ -201,7 +201,8 @@ class _ProductListScreenState extends State {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // Campo de pesquisa
+
+                // Campo de Input para pesquisa
                 Expanded(
                   flex: 2,
                   child: TextField(
@@ -227,6 +228,7 @@ class _ProductListScreenState extends State {
                   ),
                 ),
                 const SizedBox(width: 16),
+
                 // Botão de filtro por categorias
                 Expanded(
                   flex: 1,
@@ -278,6 +280,7 @@ class _ProductListScreenState extends State {
                         ),
                       );
                     },
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -300,7 +303,8 @@ class _ProductListScreenState extends State {
                             ),
                           ),
                         ),
-                        // Nome, preço e botão de adicionar ao carrinho
+
+                        // Nome, preço e botão de adicionar
                         Padding(
                           padding: const EdgeInsets.all(8),
                           child: Column(
@@ -315,6 +319,7 @@ class _ProductListScreenState extends State {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
+
                               const SizedBox(height: 4),
                               Text(
                                 '€${product['price']?.toString() ?? "0.00"}',
@@ -323,6 +328,7 @@ class _ProductListScreenState extends State {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+
                               const SizedBox(height: 8),
                               SizedBox(
                                 width: double.infinity,

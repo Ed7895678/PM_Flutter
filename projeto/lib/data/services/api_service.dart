@@ -72,6 +72,7 @@ class ApiService {
     }
   }
 
+  // Login de user
   Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await post('/auth/login', {
       'email': email,
@@ -81,6 +82,7 @@ class ApiService {
     return response;
   }
 
+  // Registo de um user
   Future<Map<String, dynamic>> register(String name, String email, String password) async {
     final response = await post('/auth/register', {
       'name': name,
@@ -91,6 +93,7 @@ class ApiService {
     return response;
   }
 
+  // Buscar todos os produtos, podem ser filtrados por categoria
   Future<List<dynamic>> getProducts({String? categoryId}) async {
     String endpoint = '/products';
     if (categoryId != null && categoryId != 'Todos') {
@@ -99,26 +102,32 @@ class ApiService {
     return await get(endpoint);
   }
 
+  // Buscar um produto através de ID
   Future<Map<String, dynamic>> getProduct(String id) async {
     return await get('/products/$id');
   }
 
+  // Buscar todas as categorias
   Future<List<dynamic>> getCategories() async {
     return await get('/categories');
   }
 
+  // Buscar os itens presentes no Carrinho
   Future<Map<String, dynamic>> getCart() async {
     return await get('/cart');
   }
 
+  // Inserir ou remover itens do carrinho
   Future<Map<String, dynamic>> updateCart(List<Map<String, dynamic>> items) async {
     return await post('/cart', {'items': items});
   }
 
+  // Buscar todas as ordens
   Future<List<dynamic>> getOrders() async {
     return await get('/orders');
   }
 
+  // Criar um ordem nova
   Future<Map<String, dynamic>> createOrder(Map<String, dynamic> orderData) async {
     return await post('/orders', orderData);
   }

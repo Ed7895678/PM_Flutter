@@ -31,10 +31,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Icon(Icons.person, size: 50),
           ),
 
-          // Espaçamento entre o avatar e as opções
           const SizedBox(height: 32),
 
-          // Opção para ver os pedidos realizados
+          // Pedidos realizados
           ListTile(
             leading: const Icon(Icons.shopping_bag),
             title: const Text('Meus Pedidos'),
@@ -48,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           ),
 
-          // Opção para gerenciar endereços
+          // Gerir endereços
           ListTile(
             leading: const Icon(Icons.location_on),
             title: const Text('Endereços'),
@@ -65,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // Separador visual antes da opção de sair
           const Divider(),
 
-          // Opção para sair da conta
+          // Sair da conta
           ListTile(
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Sair'),

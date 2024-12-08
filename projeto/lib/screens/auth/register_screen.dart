@@ -12,7 +12,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // Controladores para os campos de texto (nome, email, palavra-passe)
+  // Controladores para os campos de input
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -33,7 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _passwordController.text,
       );
 
-      // Navega para o ecrã inicial se montado e registo bem-sucedido
+      // Navega para o ecrã inicial se registo for bem-sucedido
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -84,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.emailAddress, // Especifica o tipo de entrada
+              keyboardType: TextInputType.emailAddress,
             ),
 
             // Campo de entrada para a palavra-passe
@@ -113,7 +113,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: 20,
                   child: CircularProgressIndicator(strokeWidth: 2), // Indicador de progresso
                 )
-                    : const Text('Registar'), // Texto do botão
+                    : const Text('Registar'),
               ),
             ),
           ],

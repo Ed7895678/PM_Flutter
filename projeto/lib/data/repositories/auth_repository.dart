@@ -1,7 +1,7 @@
-// lib/data/repositories/auth_repository.dart
 import '../services/api_service.dart';
 import '../../core/constants/api_constants.dart';
 
+// Serviços de Login e Registo
 class AuthRepository {
   final ApiService _apiService;
 

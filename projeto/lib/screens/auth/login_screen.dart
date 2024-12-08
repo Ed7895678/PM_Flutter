@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
-      // Navega para o ecrã inicial se montado e login bem-sucedido
+      // Navega para o ecrã inicial se montado e login for bem-sucedido
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }
@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('A palavra-passe ou o login estão incorretos'),
+            content: Text('Credenciais Incorretas.'),
           ),
         );
       }
@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.emailAddress, // Define o tipo de entrada
+              keyboardType: TextInputType.emailAddress,
             ),
 
             const SizedBox(height: 16),
@@ -82,10 +82,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 labelText: 'Palavra-passe',
                 border: OutlineInputBorder(),
               ),
-              obscureText: true, // Oculta o texto digitado (palavra-passe)
+              obscureText: true, // Oculta o texto
             ),
 
-            // Espaçamento antes do botão "Entrar"
             const SizedBox(height: 24),
 
             // Botão para fazer login
@@ -111,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.only(top: 24),
               child: TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/register'),
-                child: const Text('Ainda não tens conta? Regista-te aqui'),
+                child: const Text('Ainda não tem conta? Registe-se aqui.'),
               ),
             ),
           ],
